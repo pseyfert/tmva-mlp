@@ -262,7 +262,7 @@ class ReadMLP : public IClassifierReader {
    float OutputActivationFnc(float x) const;
 
    int fLayers;
-   int fLayerSize[3];
+   //int fLayerSize[3];
    float fWeightMatrix0to1[27][22];   // weight matrix from layer 0 to 1
    float fWeightMatrix1to2[1][27];   // weight matrix from layer 1 to 2
 
@@ -273,9 +273,12 @@ inline void ReadMLP::Initialize()
 {
    // build network structure
    fLayers = 3;
-   fLayerSize[0] = 22; fWeights[0] = new float[22]; 
-   fLayerSize[1] = 27; fWeights[1] = new float[27]; 
-   fLayerSize[2] = 1; fWeights[2] = new float[1]; 
+   //fLayerSize[0] = 22;
+   fWeights[0] = new float[22]; 
+   //fLayerSize[1] = 27;
+   fWeights[1] = new float[27]; 
+   //fLayerSize[2] = 1;
+   fWeights[2] = new float[1]; 
    // weight matrix from layer 0 to 1
    fWeightMatrix0to1[0][0] = -1.29181860423292;
    fWeightMatrix0to1[1][0] = 0.903804335642756;
@@ -881,38 +884,38 @@ inline void ReadMLP::Initialize()
 
 inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues ) const
 {
-   if (inputValues.size() != (unsigned int)fLayerSize[0]-1) {
-      std::cout << "Input vector needs to be of size " << fLayerSize[0]-1 << std::endl;
-      return 0;
-   }
+  if (inputValues.size() != 22-1) {
+    std::cout << "Input vector needs to be of size " << 22-1 << std::endl;
+    return 0;
+  }
 
-   for (int l=0; l<fLayers; l++)
-      for (int i=0; i<fLayerSize[l]; i++) fWeights[l][i]=0;
+  //for (int l=0; l<fLayers; l++)
+  for (int i=0; i<27; i++) fWeights[1][i]=0.f;
+  fWeights[2][0]=0.f;
 
-   for (int l=0; l<fLayers-1; l++)
-      fWeights[l][fLayerSize[l]-1]=1;
+  //for (int l=0; l<fLayers-1; l++)
+  fWeights[1][27-1]=1;
 
-   for (int i=0; i<fLayerSize[0]-1; i++)
-      fWeights[0][i]=inputValues[i];
+  for (int i=0; i<22-1; i++)
+    fWeights[0][i]=inputValues[i];
+  fWeights[0][22-1]=1;
 
-   // layer 0 to 1
-   for (int o=0; o<fLayerSize[1]-1; o++) {
-      for (int i=0; i<fLayerSize[0]; i++) {
-         float inputVal = fWeightMatrix0to1[o][i] * fWeights[0][i];
-         fWeights[1][o] += inputVal;
-      }
-      fWeights[1][o] = ActivationFnc(fWeights[1][o]);
-   }
-   // layer 1 to 2
-   for (int o=0; o<fLayerSize[2]; o++) {
-      for (int i=0; i<fLayerSize[1]; i++) {
-         float inputVal = fWeightMatrix1to2[o][i] * fWeights[1][i];
-         fWeights[2][o] += inputVal;
-      }
-      fWeights[2][o] = OutputActivationFnc(fWeights[2][o]);
-   }
+  // layer 0 to 1
+  for (int o=0; o<27-1; o++) {
+    for (int i=0; i<22; i++) {
+      float inputVal = fWeightMatrix0to1[o][i] * fWeights[0][i];
+      fWeights[1][o] += inputVal;
+    }
+    fWeights[1][o] = ActivationFnc(fWeights[1][o]);
+  }
+  // layer 1 to 2
+  for (int i=0; i<27; i++) {
+    float inputVal = fWeightMatrix1to2[0][i] * fWeights[1][i];
+    fWeights[2][0] += inputVal;
+  }
+  fWeights[2][0] = OutputActivationFnc(fWeights[2][0]);
 
-   return fWeights[2][0];
+  return fWeights[2][0];
 }
 
 float ReadMLP::ActivationFnc(float x) const {
