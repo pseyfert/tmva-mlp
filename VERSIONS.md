@@ -65,3 +65,9 @@ version 8
 compute variable transformation scale at initialisation, not once per evaluation
 do not instantiate get/put matrix once per evaluation
 avoid get/put matrix at all
+
+version 9
+---------
+
+hard code conditional branches in data GetMvaValue (wrapper for GetMvaValue__)
+do input variable transformation in place, instead of copying the data around

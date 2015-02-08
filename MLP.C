@@ -194,7 +194,7 @@ class ReadMLP : public IClassifierReader {
    // the classifier response
    // "inputValues" is a vector of input values in the same order as the 
    // variables given to the constructor
-   float GetMvaValue( const std::vector<float>& inputValues ) const;
+   float GetMvaValue( std::vector<float>& inputValues ) const;
 
  private:
 
@@ -913,44 +913,11 @@ inline void ReadMLP::Clear()
       delete[] fWeights[lIdx];
    }
 }
-   inline float ReadMLP::GetMvaValue( const std::vector<float>& inputValues ) const
-   {
-      // classifier response value
-      float retval = 0;
-
-      // classifier response, sanity check first
-      if (!IsStatusClean()) {
-         std::cout << "Problem in class \"" << fClassName << "\": cannot return classifier response"
-                   << " because status is dirty" << std::endl;
-         retval = 0;
-      }
-      else {
-         if (IsNormalised()) {
-            // normalise variables
-            std::vector<float> iV;
-            iV.reserve(inputValues.size());
-            int ivar = 0;
-            for (std::vector<float>::const_iterator varIt = inputValues.begin();
-                 varIt != inputValues.end(); varIt++, ivar++) {
-               iV.push_back(NormVariable( *varIt, fVmin[ivar], fVmax[ivar] ));
-            }
-            Transform( iV, -1 );
-            retval = GetMvaValue__( iV );
-         }
-         else {
-            std::vector<float> iV;
-            int ivar = 0;
-            for (std::vector<float>::const_iterator varIt = inputValues.begin();
-                 varIt != inputValues.end(); varIt++, ivar++) {
-               iV.push_back(*varIt);
-            }
-            Transform( iV, -1 );
-            retval = GetMvaValue__( iV );
-         }
-      }
-
-      return retval;
-   }
+inline float ReadMLP::GetMvaValue( std::vector<float>& inputValues ) const
+{
+  Transform( inputValues, -1 );
+  return GetMvaValue__( inputValues );
+}
 
 //_______________________________________________________________________
 inline void ReadMLP::InitTransform_1()

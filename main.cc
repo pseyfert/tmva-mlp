@@ -12,7 +12,7 @@ class IClassifierReader {
    virtual ~IClassifierReader() {}
 
    // return classifier response
-   virtual float GetMvaValue( const std::vector<float>& inputValues ) const = 0;
+   virtual float GetMvaValue( std::vector<float>& inputValues ) const = 0;
 
    // returns classifier status
    bool IsStatusClean() const { return fStatusIsClean; }
