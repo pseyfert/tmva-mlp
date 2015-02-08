@@ -249,9 +249,10 @@ inline void ReadMLP::Initialize()
    // build network structure
    fLayers = 3;
    //fLayerSize[0] = 22;
-   fWeights[0] = new float[22]; 
+   //fWeights[0] = new float[22]; 
    //fLayerSize[1] = 27;
    fWeights[1] = new float[27]; 
+   fWeights[1][27-1]=1.f; /// NEVER OVERWRITTEN?
    //fLayerSize[2] = 1;
    fWeights[2] = new float[1]; 
    // weight matrix from layer 0 to 1
@@ -859,27 +860,20 @@ inline void ReadMLP::Initialize()
 
 inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues ) const
 {
-  if (inputValues.size() != 22-1) {
-    std::cout << "Input vector needs to be of size " << 22-1 << std::endl;
+  if (inputValues.size() != 22) {
+    std::cout << "Input vector needs to be of size " << 22 << std::endl;
     return 0;
   }
 
-  //for (int l=0; l<fLayers; l++)
-  for (int i=0; i<27; i++) fWeights[1][i]=0.f;
+  for (int i=0; i<27-1; i++) fWeights[1][i]=0.f;
   fWeights[2][0]=0.f;
 
-  //for (int l=0; l<fLayers-1; l++)
-  fWeights[1][27-1]=1;
-
-  for (int i=0; i<22-1; i++)
-    fWeights[0][i]=inputValues[i];
-  fWeights[0][22-1]=1;
 
   // layer 0 to 1
   for (int o=0; o<27-1; o++) {
     float buffer[22];
     for (int i=0; i<22; i++) {
-      buffer[i] = fWeightMatrix0to1[o][i] * fWeights[0][i];
+      buffer[i] = fWeightMatrix0to1[o][i] * inputValues[i];
     }
     for (int i=0; i<22; i++) {
       fWeights[1][o] += buffer[i];
@@ -914,7 +908,7 @@ float ReadMLP::OutputActivationFnc(float x) const {
 inline void ReadMLP::Clear() 
 {
    // clean up the arrays
-   for (int lIdx = 0; lIdx < 3; lIdx++) {
+   for (int lIdx = 1; lIdx < 3; lIdx++) {
       delete[] fWeights[lIdx];
    }
 }

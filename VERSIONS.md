@@ -49,3 +49,12 @@ version 6
 ---------
 
 replaced output layer activation function
+
+version 7
+---------
+
+removed usage of fWeights[0]
+additional offset weight in input vector required (does not undergo transformation)
+fWeights[1][26] is not set to 0.f prior to setting it to 1.f
+and set fWeights[1][26] only once to 1.f
+NB: ActivationFnc is not applied to fWeights[1][26]

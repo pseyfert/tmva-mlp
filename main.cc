@@ -71,6 +71,7 @@ int main() {
   vars.push_back("tracks_TrackExtraInfo_FitMatchChi2");
   fvars.push_back(0.f);
 
+  fvars.push_back(1.f);
   TChain* kette = new TChain("TestTree");
   kette->Add("TMVA.root");
 
