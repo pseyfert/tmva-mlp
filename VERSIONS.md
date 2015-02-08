@@ -39,3 +39,8 @@ version 4
 
 enabled auto vectorisation at compiler options
 split up loop in line 885 into two loops, the first of which can be run in parallel
+
+version 5
+---------
+
+vectorise loop at line 880 similarly

@@ -877,10 +877,15 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues ) con
 
   // layer 0 to 1
   for (int o=0; o<27-1; o++) {
+    float buffer[22];
     for (int i=0; i<22; i++) {
-      float inputVal = fWeightMatrix0to1[o][i] * fWeights[0][i];
-      fWeights[1][o] += inputVal;
+      buffer[i] = fWeightMatrix0to1[o][i] * fWeights[0][i];
     }
+    for (int i=0; i<22; i++) {
+      fWeights[1][o] += buffer[i];
+    }
+  }
+  for (int o=0; o<27-1; o++) {
     fWeights[1][o] = ActivationFnc(fWeights[1][o]);
   }
   // layer 1 to 2
