@@ -906,8 +906,8 @@ float ReadMLP::ActivationFnc(float x) const {
    return x/sqrt(1.+x*x);
 }
 float ReadMLP::OutputActivationFnc(float x) const {
-   // sigmoid
-   return 1.0/(1.0+exp(-x));
+   // activation function
+   return x/sqrt(1.+x*x);
 }
    
 // Clean up

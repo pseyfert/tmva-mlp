@@ -44,3 +44,8 @@ version 5
 ---------
 
 vectorise loop at line 880 similarly
+
+version 6
+---------
+
+replaced output layer activation function
