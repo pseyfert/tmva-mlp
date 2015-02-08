@@ -13,6 +13,7 @@ switch to float
 version 2
 ---------
 
+fa67edfc70ea29b0ff52e5709535f9ebd25ee645
 remove fLayerSize and hard code it (anyhow hard coded for array sizes)
 
 remove loop in line 907
@@ -27,4 +28,14 @@ remove loop in line 892
   there are exactly two offset weights, hard code them
   move the offset weight of the input layer to the other assignments of the input layer (may help due to memory layout?)
 
+version 3
+---------
 
+c48976a321cac637e9568a9e84f6812bf6807b7b
+remove fTypes
+
+version 4
+---------
+
+enabled auto vectorisation at compiler options
+split up loop in line 885 into two loops, the first of which can be run in parallel

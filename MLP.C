@@ -108,7 +108,8 @@ class ReadMLP : public IClassifierReader {
       : IClassifierReader(),
         fClassName( "ReadMLP" ),
         fNvars( 21 ),
-        fIsNormalised( false )
+        fIsNormalised( false ),
+        secondmatrix(fWeightMatrix1to2[0])
    {      
       // the training input variables
       const char* inputVars[] = { "tracks_OldImplementation_obsVELO", "tracks_TrackExtraInfo_FitVeloChi2", "tracks_TrackExtraInfo_FitVeloNDoF", "tracks_OldImplementation_obsTT", "tracks_OldImplementation_TToutlier", "tracks_OldImplementation_obsIT", "tracks_OldImplementation_obsOT", "tracks_OldImplementation_IToutlier", "tracks_OldImplementation_OTunused", "tracks_TrackExtraInfo_FitTChi2", "tracks_TrackExtraInfo_FitTNDoF", "tracks_OldImplementation_veloHits", "tracks_OldImplementation_ttHits", "tracks_OldImplementation_itHits", "tracks_OldImplementation_otHits", "tracks_PT", "tracks_TRACK_CHI2", "tracks_TRACK_NDOF", "tracks_TRACK_CHI2NDOF", "tracks_TrackExtraInfo_NCandCommonHits", "tracks_TrackExtraInfo_FitMatchChi2" };
@@ -178,29 +179,6 @@ class ReadMLP : public IClassifierReader {
       fVmin[20] = -1;
       fVmax[20] = 0.99999988079071;
 
-      // initialize input variable types
-      fType[0] = 'F';
-      fType[1] = 'F';
-      fType[2] = 'F';
-      fType[3] = 'F';
-      fType[4] = 'F';
-      fType[5] = 'F';
-      fType[6] = 'F';
-      fType[7] = 'F';
-      fType[8] = 'F';
-      fType[9] = 'F';
-      fType[10] = 'F';
-      fType[11] = 'F';
-      fType[12] = 'F';
-      fType[13] = 'F';
-      fType[14] = 'F';
-      fType[15] = 'F';
-      fType[16] = 'F';
-      fType[17] = 'F';
-      fType[18] = 'F';
-      fType[19] = 'F';
-      fType[20] = 'F';
-
       // initialize constants
       Initialize();
 
@@ -237,7 +215,6 @@ class ReadMLP : public IClassifierReader {
 
    const size_t fNvars;
    size_t GetNvar()           const { return fNvars; }
-   char   GetType( int ivar ) const { return fType[ivar]; }
 
    // normalisation of input variables
    const bool fIsNormalised;
@@ -248,9 +225,6 @@ class ReadMLP : public IClassifierReader {
       // normalise to output range: [-1, 1]
       return 2*(x - xmin)/(xmax - xmin) - 1.0;
    }
-
-   // type of input variable: 'F' or 'I'
-   char   fType[21];
 
    // initialize internal variables
    void Initialize();
@@ -265,6 +239,7 @@ class ReadMLP : public IClassifierReader {
    //int fLayerSize[3];
    float fWeightMatrix0to1[27][22];   // weight matrix from layer 0 to 1
    float fWeightMatrix1to2[1][27];   // weight matrix from layer 1 to 2
+   const float* secondmatrix;
 
    float * fWeights[3];
 };
@@ -909,9 +884,12 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues ) con
     fWeights[1][o] = ActivationFnc(fWeights[1][o]);
   }
   // layer 1 to 2
+  float buffer[27];
   for (int i=0; i<27; i++) {
-    float inputVal = fWeightMatrix1to2[0][i] * fWeights[1][i];
-    fWeights[2][0] += inputVal;
+    buffer[i] = secondmatrix[i] * fWeights[1][i];
+  }
+  for (int i=0; i<27; i++) {
+    fWeights[2][0] += buffer[i];
   }
   fWeights[2][0] = OutputActivationFnc(fWeights[2][0]);
 
