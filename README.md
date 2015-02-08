@@ -30,6 +30,11 @@ training) but since i'm fine with monotoneous transformations of the evaluated
 network output, I replaced the output layer activation function after the
 training.
 
+The actual profiles of the test case reveal that the test spends many cycles on
+i/o and ROOT overhead.  Since in a real use scenario, the data will either come
+from different sources or the i/o will anyhow be unavoidable, I still
+concentrate on speeding up the MLP.
+
 Warnings
 --------
 
@@ -42,6 +47,15 @@ License
 
 The code is released under the [GNU Lesser General Public License, version
 2.1][LGPL], the license under which [ROOT] itself is provided.
+
+Machine info
+------------
+
+The profiles were generated on an AMD Opteron(tm) Processor 6344.
+The tools in use are:
+gcc 4.8.1
+ROOT 6.03/02
+valgrind 3.8.1
 
 [ROOT-7062]: https://sft.its.cern.ch/jira/browse/ROOT-7062
 [TMVA]:      http://tmva.sourceforge.net/
