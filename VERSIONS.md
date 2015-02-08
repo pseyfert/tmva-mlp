@@ -58,3 +58,10 @@ additional offset weight in input vector required (does not undergo transformati
 fWeights[1][26] is not set to 0.f prior to setting it to 1.f
 and set fWeights[1][26] only once to 1.f
 NB: ActivationFnc is not applied to fWeights[1][26]
+
+version 8
+---------
+
+compute variable transformation scale at initialisation, not once per evaluation
+do not instantiate get/put matrix once per evaluation
+avoid get/put matrix at all

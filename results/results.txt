@@ -29,3 +29,7 @@ GetMvaValue   2 569 055 976
 version 7:
 main          5 475 596 643
 GetMvaValue   2 547 583 122
+
+version 8:
+main          5 384 183 539
+GetMvaValue   2 456 731 411

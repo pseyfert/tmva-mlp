@@ -205,6 +205,7 @@ class ReadMLP : public IClassifierReader {
 
    float fMin_1[3][21];
    float fMax_1[3][21];
+   float fscale[3][21];
    void InitTransform_1();
    void Transform_1( std::vector<float> & iv, int sigOrBgd ) const;
    void InitTransform();
@@ -1081,6 +1082,11 @@ inline void ReadMLP::InitTransform_1()
    fMax_1[1][20] = 91.3790054321;
    fMin_1[2][20] = 0.0158689655364;
    fMax_1[2][20] = 91.3790054321;
+   for (int cls = 0 ; cls < 3 ; ++cls) {
+     for (int ivar = 0 ; ivar<21 ; ++ivar) {
+       fscale[cls][ivar] = 2.f/(fMax_1[cls][ivar]-fMin_1[cls][ivar]);
+     }
+   }
 }
 
 //_______________________________________________________________________
@@ -1091,70 +1097,10 @@ inline void ReadMLP::Transform_1( std::vector<float>& iv, int cls) const
    if (2 > 1 ) cls = 2;
       else cls = 2;
    }
-   const int nVar = 21;
 
-   // get indices of used variables
-
-   // define the indices of the variables which are transformed by this transformation
-   static std::vector<int> indicesGet;
-   static std::vector<int> indicesPut;
-
-   if ( indicesGet.empty() ) { 
-      indicesGet.reserve(fNvars);
-      indicesGet.push_back( 0);
-      indicesGet.push_back( 1);
-      indicesGet.push_back( 2);
-      indicesGet.push_back( 3);
-      indicesGet.push_back( 4);
-      indicesGet.push_back( 5);
-      indicesGet.push_back( 6);
-      indicesGet.push_back( 7);
-      indicesGet.push_back( 8);
-      indicesGet.push_back( 9);
-      indicesGet.push_back( 10);
-      indicesGet.push_back( 11);
-      indicesGet.push_back( 12);
-      indicesGet.push_back( 13);
-      indicesGet.push_back( 14);
-      indicesGet.push_back( 15);
-      indicesGet.push_back( 16);
-      indicesGet.push_back( 17);
-      indicesGet.push_back( 18);
-      indicesGet.push_back( 19);
-      indicesGet.push_back( 20);
-   } 
-   if ( indicesPut.empty() ) { 
-      indicesPut.reserve(fNvars);
-      indicesPut.push_back( 0);
-      indicesPut.push_back( 1);
-      indicesPut.push_back( 2);
-      indicesPut.push_back( 3);
-      indicesPut.push_back( 4);
-      indicesPut.push_back( 5);
-      indicesPut.push_back( 6);
-      indicesPut.push_back( 7);
-      indicesPut.push_back( 8);
-      indicesPut.push_back( 9);
-      indicesPut.push_back( 10);
-      indicesPut.push_back( 11);
-      indicesPut.push_back( 12);
-      indicesPut.push_back( 13);
-      indicesPut.push_back( 14);
-      indicesPut.push_back( 15);
-      indicesPut.push_back( 16);
-      indicesPut.push_back( 17);
-      indicesPut.push_back( 18);
-      indicesPut.push_back( 19);
-      indicesPut.push_back( 20);
-   } 
-
-   static std::vector<float> dv;
-   dv.resize(nVar);
-   for (int ivar=0; ivar<nVar; ivar++) dv[ivar] = iv[indicesGet.at(ivar)];
    for (int ivar=0;ivar<21;ivar++) {
-      float offset = fMin_1[cls][ivar];
-      float scale  = 1.0/(fMax_1[cls][ivar]-fMin_1[cls][ivar]);
-      iv[indicesPut.at(ivar)] = (dv[ivar]-offset)*scale * 2 - 1;
+      iv[ivar] = iv[ivar]-fMin_1[cls][ivar];
+      iv[ivar] = iv[ivar]*fscale[cls][ivar] - 1.f;
    }
 }
 
