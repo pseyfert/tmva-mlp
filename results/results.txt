@@ -1,3 +1,7 @@
 initial:
 main          5 973 719 066
 GetMvaValue   3 045 311 394
+
+version 1:
+main          5 854 747 392
+GetMvaValue   2 926 826 613

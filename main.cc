@@ -12,7 +12,7 @@ class IClassifierReader {
    virtual ~IClassifierReader() {}
 
    // return classifier response
-   virtual double GetMvaValue( const std::vector<double>& inputValues ) const = 0;
+   virtual float GetMvaValue( const std::vector<float>& inputValues ) const = 0;
 
    // returns classifier status
    bool IsStatusClean() const { return fStatusIsClean; }
@@ -27,7 +27,7 @@ class IClassifierReader {
 int main() {
 
   std::vector<std::string> vars;
-  std::vector<Double_t> fvars;
+  std::vector<Float_t> fvars;
   vars.push_back("tracks_OldImplementation_obsVELO");
   fvars.push_back(0.f);
   vars.push_back("tracks_TrackExtraInfo_FitVeloChi2");
