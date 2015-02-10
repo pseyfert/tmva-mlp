@@ -82,3 +82,8 @@ version 10
 ----------
 
 added some SSE by hand
+
+version 11
+----------
+
+inline ActivationFnc(s)

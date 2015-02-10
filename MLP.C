@@ -926,11 +926,11 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues ) con
   return fWeights[2][0];
 }
 
-float ReadMLP::ActivationFnc(float x) const {
+inline float ReadMLP::ActivationFnc(float x) const {
    // activation function
    return x/sqrt(1.+x*x);
 }
-float ReadMLP::OutputActivationFnc(float x) const {
+inline float ReadMLP::OutputActivationFnc(float x) const {
    // activation function
    return x/sqrt(1.+x*x);
 }
