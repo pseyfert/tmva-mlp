@@ -87,3 +87,8 @@ version 11
 ----------
 
 inline ActivationFnc(s)
+
+version 12
+----------
+
+SIMD for output layer and activation function

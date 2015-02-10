@@ -237,6 +237,7 @@ class ReadMLP : public IClassifierReader {
    // private members (method specific)
 
    float ActivationFnc(float x) const;
+   __m128 ActivationFnc(__m128 x) const;
    float OutputActivationFnc(float x) const;
 
    int fLayers;
@@ -910,22 +911,66 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues ) con
 
     _mm_store_ss(&fWeights[1][o], sum);
   }
-  for (int o=0; o<27-1; o++) {
-    fWeights[1][o] = ActivationFnc(fWeights[1][o]);
+  
+  {
+    __m128 simd_in = _mm_load_ps(&fWeights[1][0]);
+    __m128 matrix = _mm_load_ps(&secondmatrix[0]);
+    simd_in = ActivationFnc(simd_in);
+    __m128 sum = _mm_mul_ps(simd_in,matrix);
+
+    simd_in = _mm_load_ps(&fWeights[1][4]);
+    matrix = _mm_load_ps(&secondmatrix[4]);
+    simd_in = ActivationFnc(simd_in);
+    __m128 c = _mm_mul_ps(simd_in,matrix);
+    sum = _mm_add_ps(sum,c);
+
+    simd_in = _mm_load_ps(&fWeights[1][8]);
+    matrix = _mm_load_ps(&secondmatrix[8]);
+    simd_in = ActivationFnc(simd_in);
+    c = _mm_mul_ps(simd_in,matrix);
+    sum = _mm_add_ps(sum,c);
+
+    simd_in = _mm_load_ps(&fWeights[1][12]);
+    matrix = _mm_load_ps(&secondmatrix[12]);
+    simd_in = ActivationFnc(simd_in);
+    c = _mm_mul_ps(simd_in,matrix);
+    sum = _mm_add_ps(sum,c);
+
+    simd_in = _mm_load_ps(&fWeights[1][16]);
+    matrix = _mm_load_ps(&secondmatrix[16]);
+    simd_in = ActivationFnc(simd_in);
+    c = _mm_mul_ps(simd_in,matrix);
+    sum = _mm_add_ps(sum,c);
+
+    simd_in = _mm_load_ps(&fWeights[1][20]);
+    matrix = _mm_load_ps(&secondmatrix[20]);
+    simd_in = ActivationFnc(simd_in);
+    c = _mm_mul_ps(simd_in,matrix);
+    sum = _mm_add_ps(sum,c);
+
+    simd_in = (_mm_setr_ps(ActivationFnc(fWeights[1][24]),ActivationFnc(fWeights[1][25]),1.f,0.f));
+    matrix = (_mm_setr_ps(secondmatrix[24],secondmatrix[25],secondmatrix[26],0.f));
+    c =  _mm_mul_ps(simd_in,matrix);
+    sum = _mm_add_ps(c,sum);
+
+    sum = _mm_hadd_ps(sum,sum);
+    sum = _mm_hadd_ps(sum,sum);
+
+    _mm_store_ss(&fWeights[2][0], sum);
   }
-  // layer 1 to 2
-  float buffer[27];
-  for (int i=0; i<27; i++) {
-    buffer[i] = secondmatrix[i] * fWeights[1][i];
-  }
-  for (int i=0; i<27; i++) {
-    fWeights[2][0] += buffer[i];
-  }
+
   fWeights[2][0] = OutputActivationFnc(fWeights[2][0]);
 
   return fWeights[2][0];
 }
 
+inline __m128 ReadMLP::ActivationFnc(__m128 x) const {
+   __m128 buffer = _mm_mul_ps(x,x);
+   __m128 one = _mm_set1_ps(1.f);
+   buffer = _mm_add_ps(one,buffer);
+   buffer = _mm_rsqrt_ps(buffer);
+   return _mm_mul_ps(x,buffer);
+}
 inline float ReadMLP::ActivationFnc(float x) const {
    // activation function
    return x/sqrt(1.+x*x);

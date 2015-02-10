@@ -45,3 +45,7 @@ GetMvaValue     555 830 106
 version 11:
 main          3 482 886 599
 GetMvaValue     555 830 106
+
+version 12:
+main          3 288 926 201
+GetMvaValue     361 870 392
