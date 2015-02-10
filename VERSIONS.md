@@ -92,3 +92,8 @@ version 12
 ----------
 
 SIMD for output layer and activation function
+
+version 13
+----------
+
+use SIMD also for input variable transformation (except for edge)

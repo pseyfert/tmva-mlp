@@ -49,3 +49,7 @@ GetMvaValue     555 830 106
 version 12:
 main          3 288 926 201
 GetMvaValue     361 870 392
+
+version 13:
+main          3 271 062 148
+GetMvaValue     343 213 650

@@ -1139,11 +1139,33 @@ inline void ReadMLP::Transform_1( std::vector<float>& iv, int cls) const
    if (2 > 1 ) cls = 2;
       else cls = 2;
    }
+   int ivar=0;
+   //std::vector<float> ov(21,0.f);
+   //for (;ivar<21;ivar++) {
+   //   ov[ivar] = iv[ivar]-fMin_1[cls][ivar];
+   //   ov[ivar] = ov[ivar]*fscale[cls][ivar] - 1.f;
+   //}
+   //ivar=0;
+   for (;ivar+3<21;ivar+=4) {
+     __m128 vars = _mm_load_ps(&iv[ivar]);
+     __m128 mins = _mm_load_ps(&fMin_1[cls][ivar]);
+     __m128 scal = _mm_load_ps(&fscale[cls][ivar]);
+     __m128 one = _mm_set1_ps(1.f);
 
-   for (int ivar=0;ivar<21;ivar++) {
+     vars = _mm_sub_ps(vars,mins);
+     vars = _mm_mul_ps(vars,scal);
+     vars = _mm_sub_ps(vars,one);
+     
+     _mm_store_ps(&iv[ivar],vars);
+   }
+   for (;ivar<21;ivar++) { // catch the rest
       iv[ivar] = iv[ivar]-fMin_1[cls][ivar];
       iv[ivar] = iv[ivar]*fscale[cls][ivar] - 1.f;
    }
+   //ivar=0;
+   //for (;ivar<21;ivar++) {
+   //   if (ov[ivar]!=iv[ivar]) std::cout << "ORDER MESSED UP" << std::endl;
+   //}
 }
 
 //_______________________________________________________________________
