@@ -81,19 +81,23 @@ do input variable transformation in place, instead of copying the data around
 version 10
 ----------
 
+d2da1c76cb24b73300d77fb77746ab9d4e3368d1
 added some SSE by hand
 
 version 11
 ----------
 
+db45c593b9a54d362471ec086b2662949ea5e76f
 inline ActivationFnc(s)
 
 version 12
 ----------
 
+9b1817a5d8c8e16118392113d8a71ed69e9a94a9
 SIMD for output layer and activation function
 
 version 13
 ----------
 
+6df7cbcc506d2de40a079bc13d859567e454fe5e
 use SIMD also for input variable transformation (except for edge)

@@ -20,15 +20,17 @@ The steps are:
  * rearrange code to achieve auto vectorisation
  * reading https://research.google.com/pubs/archive/37631.pdf
 
-why this is not just code you can use directly The work is at the moment very
-specific to my existing network. This does not use a decorrelation
-transformation, which may change the picture. I used my private simple sigmoid
-activation function in the hidden layer in the training [ROOT-7062]. As it
-turns out, I failed to replace the output layer activation function (cross
-entropy estimator in back propagation needs the standard sigmoid in the
-training) but since i'm fine with monotoneous transformations of the evaluated
-network output, I replaced the output layer activation function after the
-training.
+why this is not just code you can use directly
+----------------------------------------------
+
+The work is at the moment very specific to my existing network. This does not
+use a decorrelation transformation, which may change the picture. I used my
+private simple sigmoid activation function in the hidden layer in the training
+[ROOT-7062]. As it turns out, I failed to replace the output layer activation
+function (cross entropy estimator in back propagation needs the standard
+sigmoid in the training) but since i'm fine with monotoneous transformations of
+the evaluated network output, I replaced the output layer activation function
+after the training.
 
 The actual profiles of the test case reveal that the test spends many cycles on
 i/o and ROOT overhead.  Since in a real use scenario, the data will either come
