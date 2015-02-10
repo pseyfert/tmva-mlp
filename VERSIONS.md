@@ -77,3 +77,8 @@ version 9
 7f925a983931cbecde928c678e1999002579b3c9
 hard code conditional branches in data GetMvaValue (wrapper for GetMvaValue__)
 do input variable transformation in place, instead of copying the data around
+
+version 10
+----------
+
+added some SSE by hand
