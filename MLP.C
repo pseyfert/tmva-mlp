@@ -111,7 +111,6 @@ class ReadMLP : public IClassifierReader {
       : IClassifierReader(),
         fClassName( "ReadMLP" ),
         fNvars( 21 ),
-        fIsNormalised( false ),
         secondmatrix(fWeightMatrix1to2[0])
    {      
       // the training input variables
@@ -137,50 +136,6 @@ class ReadMLP : public IClassifierReader {
             fStatusIsClean = false;
          }
       }
-
-      // initialize min and max vectors (for normalisation)
-      fVmin[0] = -1;
-      fVmax[0] = 1;
-      fVmin[1] = -1;
-      fVmax[1] = 0.99999988079071;
-      fVmin[2] = -1;
-      fVmax[2] = 1;
-      fVmin[3] = -1;
-      fVmax[3] = 1;
-      fVmin[4] = -1;
-      fVmax[4] = 1;
-      fVmin[5] = -1;
-      fVmax[5] = 1;
-      fVmin[6] = -1;
-      fVmax[6] = 1;
-      fVmin[7] = -1;
-      fVmax[7] = 1;
-      fVmin[8] = -1;
-      fVmax[8] = 1;
-      fVmin[9] = -1;
-      fVmax[9] = 0.99999988079071;
-      fVmin[10] = -1;
-      fVmax[10] = 1;
-      fVmin[11] = -1;
-      fVmax[11] = 1;
-      fVmin[12] = -1;
-      fVmax[12] = 1;
-      fVmin[13] = -1;
-      fVmax[13] = 0.99999988079071;
-      fVmin[14] = -1;
-      fVmax[14] = 1;
-      fVmin[15] = -1;
-      fVmax[15] = 1;
-      fVmin[16] = -1;
-      fVmax[16] = 1;
-      fVmin[17] = -1;
-      fVmax[17] = 1;
-      fVmin[18] = -1;
-      fVmax[18] = 1;
-      fVmin[19] = -1;
-      fVmax[19] = 1;
-      fVmin[20] = -1;
-      fVmax[20] = 0.99999988079071;
 
       // initialize constants
       Initialize();
@@ -221,10 +176,6 @@ class ReadMLP : public IClassifierReader {
    size_t GetNvar()           const { return fNvars; }
 
    // normalisation of input variables
-   const bool fIsNormalised;
-   bool IsNormalised() const { return fIsNormalised; }
-   float fVmin[21];
-   float fVmax[21];
    float NormVariable( float x, float xmin, float xmax ) const {
       // normalise to output range: [-1, 1]
       return 2*(x - xmin)/(xmax - xmin) - 1.0;
@@ -1162,6 +1113,7 @@ inline void ReadMLP::Transform_1( std::vector<float>& iv, int cls) const
       iv[ivar] = iv[ivar]-fMin_1[cls][ivar];
       iv[ivar] = iv[ivar]*fscale[cls][ivar] - 1.f;
    }
+   iv.push_back(1.f);
    //ivar=0;
    //for (;ivar<21;ivar++) {
    //   if (ov[ivar]!=iv[ivar]) std::cout << "ORDER MESSED UP" << std::endl;
