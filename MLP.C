@@ -151,7 +151,7 @@ class ReadMLP : public IClassifierReader {
    // the classifier response
    // "inputValues" is a vector of input values in the same order as the 
    // variables given to the constructor
-   float GetMvaValue( std::vector<float>& inputValues ) const;
+   float GetMvaValue( std::vector<float>& inputValues );
 
  private:
 
@@ -181,7 +181,7 @@ class ReadMLP : public IClassifierReader {
 
    // initialize internal variables
    void Initialize();
-   float GetMvaValue__( const std::vector<float>& inputValues ) const;
+   float GetMvaValue__( const std::vector<float>& inputValues );
 
    // private members (method specific)
 
@@ -810,7 +810,7 @@ inline void ReadMLP::Initialize()
    fWeightMatrix1to2[27] = 0.f; /// fill up to multiple of four
 }
 
-inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues ) const
+inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
 {
 
   for (int i=0; i<27-1; i++) fWeights[i]=0.f;
@@ -931,7 +931,7 @@ inline float ReadMLP::ActivationFnc(float x) const {
 inline void ReadMLP::Clear() 
 {
 }
-inline float ReadMLP::GetMvaValue( std::vector<float>& inputValues ) const
+inline float ReadMLP::GetMvaValue( std::vector<float>& inputValues )
 {
   if (inputValues.size() != 21) {
     std::cout << "Input vector needs to be of size " << 21 << std::endl;
