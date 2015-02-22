@@ -813,10 +813,6 @@ inline void ReadMLP::Initialize()
 
 inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues ) const
 {
-  if (inputValues.size() != 22) {
-    std::cout << "Input vector needs to be of size " << 22 << std::endl;
-    return 0;
-  }
 
   for (int i=0; i<27-1; i++) fWeights[i]=0.f;
   float retval(0.f);
@@ -849,7 +845,7 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues ) con
     c =  _mm_mul_ps(simd_in,matrix);
     sum = _mm_add_ps(c,sum);
 
-    simd_in = (_mm_setr_ps(inputValues[20],inputValues[21],0.f,0.f));
+    simd_in = _mm_load_ps(&inputValues[20]);
     matrix = (_mm_setr_ps(fWeightMatrix0to1[o][20],fWeightMatrix0to1[o][21],0.f,0.f));
     c =  _mm_mul_ps(simd_in,matrix);
     sum = _mm_add_ps(c,sum);
@@ -931,6 +927,10 @@ inline void ReadMLP::Clear()
 }
 inline float ReadMLP::GetMvaValue( std::vector<float>& inputValues ) const
 {
+  if (inputValues.size() != 21) {
+    std::cout << "Input vector needs to be of size " << 21 << std::endl;
+    return 0;
+  }
   Transform( inputValues, -1 );
   return GetMvaValue__( inputValues );
 }
@@ -1104,10 +1104,8 @@ inline void ReadMLP::Transform_1( std::vector<float>& iv, int cls) const
       iv[ivar] = iv[ivar]*fscale[cls][ivar] - 1.f;
    }
    iv.push_back(1.f);
-   //ivar=0;
-   //for (;ivar<21;ivar++) {
-   //   if (ov[ivar]!=iv[ivar]) std::cout << "ORDER MESSED UP" << std::endl;
-   //}
+   iv.push_back(0.f); // fill up to multiple of four
+   iv.push_back(0.f); // fill up to multiple of four
 }
 
 //_______________________________________________________________________
