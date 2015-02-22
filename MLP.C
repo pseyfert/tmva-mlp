@@ -193,7 +193,7 @@ class ReadMLP : public IClassifierReader {
 
    int fLayers;
    //int fLayerSize[3];
-   float fWeightMatrix0to1[27][22];   // weight matrix from layer 0 to 1
+   float fWeightMatrix0to1[26][22];   // weight matrix from layer 0 to 1
    float fWeightMatrix1to2[1][27];   // weight matrix from layer 1 to 2
    const float* secondmatrix;
 
@@ -207,8 +207,7 @@ inline void ReadMLP::Initialize()
    //fLayerSize[0] = 22;
    //fWeights[0] = new float[22]; 
    //fLayerSize[1] = 27;
-   fWeights[1] = new float[27]; 
-   fWeights[1][27-1]=1.f; /// NEVER OVERWRITTEN?
+   fWeights[1] = new float[26]; 
    //fLayerSize[2] = 1;
    fWeights[2] = new float[1]; 
    // weight matrix from layer 0 to 1
