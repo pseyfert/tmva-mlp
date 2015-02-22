@@ -893,6 +893,10 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues ) con
     sum = _mm_add_ps(sum,c);
 
     simd_in = _mm_load_ps(&fWeights[24]);
+    simd_in = ActivationFnc(simd_in);
+    _mm_store_ps(&fWeights[24], simd_in);
+    fWeights[26]=1.f; /// THIS IS CUMBERSOME
+    simd_in = _mm_load_ps(&fWeights[24]);
     matrix = _mm_load_ps(&fWeightMatrix1to2[24]);
     c =  _mm_mul_ps(simd_in,matrix);
     sum = _mm_add_ps(c,sum);
