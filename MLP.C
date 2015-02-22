@@ -189,7 +189,6 @@ class ReadMLP : public IClassifierReader {
 
    float ActivationFnc(float x) const;
    __m128 ActivationFnc(__m128 x) const;
-   float OutputActivationFnc(float x) const;
 
    int fLayers;
    //int fLayerSize[3];
@@ -909,7 +908,7 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues ) con
     _mm_store_ss(&fWeights[2][0], sum);
   }
 
-  fWeights[2][0] = OutputActivationFnc(fWeights[2][0]);
+  fWeights[2][0] = ActivationFnc(fWeights[2][0]);
 
   return fWeights[2][0];
 }
@@ -922,10 +921,6 @@ inline __m128 ReadMLP::ActivationFnc(__m128 x) const {
    return _mm_mul_ps(x,buffer);
 }
 inline float ReadMLP::ActivationFnc(float x) const {
-   // activation function
-   return x/sqrt(1.+x*x);
-}
-inline float ReadMLP::OutputActivationFnc(float x) const {
    // activation function
    return x/sqrt(1.+x*x);
 }
