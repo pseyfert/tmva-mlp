@@ -1113,7 +1113,6 @@ inline void ReadMLP::Transform_1( std::vector<float>& iv, int cls) const
       iv[ivar] = iv[ivar]-fMin_1[cls][ivar];
       iv[ivar] = iv[ivar]*fscale[cls][ivar] - 1.f;
    }
-   iv.push_back(1.f);
    //ivar=0;
    //for (;ivar<21;ivar++) {
    //   if (ov[ivar]!=iv[ivar]) std::cout << "ORDER MESSED UP" << std::endl;
