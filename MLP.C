@@ -194,7 +194,7 @@ class ReadMLP : public IClassifierReader {
    float fWeightMatrix0to1[26][22];   // weight matrix from layer 0 to 1
    float fWeightMatrix1to2[28];  // should be 27, but want to fill up to multiple of 4
 
-   float fWeights[26];
+   float fWeights[28]; // should be 26, but want to fill up to multiple of 4
 };
 
 inline void ReadMLP::Initialize()
@@ -205,6 +205,9 @@ inline void ReadMLP::Initialize()
    //fLayerSize[1] = 27;
    //fLayerSize[2] = 1;
    // weight matrix from layer 0 to 1
+   fWeights[26] = 1.f;
+   fWeights[27] = 0.f;
+
    fWeightMatrix0to1[0][0] = -1.29181860423292;
    fWeightMatrix0to1[1][0] = 0.903804335642756;
    fWeightMatrix0to1[2][0] = -0.607481193406975;
@@ -893,9 +896,8 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues ) con
     c = _mm_mul_ps(simd_in,matrix);
     sum = _mm_add_ps(sum,c);
 
-    simd_in = (_mm_setr_ps(ActivationFnc(fWeights[24]),ActivationFnc(fWeights[25]),1.f,0.f));
+    simd_in = _mm_load_ps(&fWeights[24]);
     matrix = _mm_load_ps(&fWeightMatrix1to2[24]);
-    //matrix = (_mm_setr_ps(fWeightMatrix1to2[24],fWeightMatrix1to2[25],fWeightMatrix1to2[26],0.f));
     c =  _mm_mul_ps(simd_in,matrix);
     sum = _mm_add_ps(c,sum);
 
