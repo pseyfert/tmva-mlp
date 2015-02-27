@@ -194,7 +194,7 @@ class ReadMLP : public IClassifierReader {
    float fWeightMatrix0to1[26][22];   // weight matrix from layer 0 to 1
    float fWeightMatrix1to2[28];  // should be 27, but want to fill up to multiple of 4
 
-   float * fWeights[3];
+   float * fWeights[2];
 };
 
 inline void ReadMLP::Initialize()
@@ -202,11 +202,9 @@ inline void ReadMLP::Initialize()
    // build network structure
    fLayers = 3;
    //fLayerSize[0] = 22;
-   //fWeights[0] = new float[22]; 
    //fLayerSize[1] = 27;
    fWeights[1] = new float[26]; 
    //fLayerSize[2] = 1;
-   fWeights[2] = new float[1]; 
    // weight matrix from layer 0 to 1
    fWeightMatrix0to1[0][0] = -1.29181860423292;
    fWeightMatrix0to1[1][0] = 0.903804335642756;
@@ -819,7 +817,7 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues ) con
   }
 
   for (int i=0; i<27-1; i++) fWeights[1][i]=0.f;
-  fWeights[2][0]=0.f;
+  float retval(0.f);
 
 
   // layer 0 to 1
@@ -905,12 +903,13 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues ) con
     sum = _mm_hadd_ps(sum,sum);
     sum = _mm_hadd_ps(sum,sum);
 
-    _mm_store_ss(&fWeights[2][0], sum);
+    _mm_store_ss(&retval, sum);
   }
 
-  fWeights[2][0] = ActivationFnc(fWeights[2][0]);
+  retval = ActivationFnc(retval);
+  /// OR STILL DO THIS IN SSE????
 
-  return fWeights[2][0];
+  return retval;
 }
 
 inline __m128 ReadMLP::ActivationFnc(__m128 x) const {
@@ -929,7 +928,7 @@ inline float ReadMLP::ActivationFnc(float x) const {
 inline void ReadMLP::Clear() 
 {
    // clean up the arrays
-   for (int lIdx = 1; lIdx < 3; lIdx++) {
+   for (int lIdx = 1; lIdx < 2; lIdx++) {
       delete[] fWeights[lIdx];
    }
 }
