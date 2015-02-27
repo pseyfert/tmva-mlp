@@ -110,8 +110,7 @@ class ReadMLP : public IClassifierReader {
    ReadMLP( std::vector<std::string>& theInputVars ) 
       : IClassifierReader(),
         fClassName( "ReadMLP" ),
-        fNvars( 21 ),
-        secondmatrix(fWeightMatrix1to2[0])
+        fNvars( 21 )
    {      
       // the training input variables
       const char* inputVars[] = { "tracks_OldImplementation_obsVELO", "tracks_TrackExtraInfo_FitVeloChi2", "tracks_TrackExtraInfo_FitVeloNDoF", "tracks_OldImplementation_obsTT", "tracks_OldImplementation_TToutlier", "tracks_OldImplementation_obsIT", "tracks_OldImplementation_obsOT", "tracks_OldImplementation_IToutlier", "tracks_OldImplementation_OTunused", "tracks_TrackExtraInfo_FitTChi2", "tracks_TrackExtraInfo_FitTNDoF", "tracks_OldImplementation_veloHits", "tracks_OldImplementation_ttHits", "tracks_OldImplementation_itHits", "tracks_OldImplementation_otHits", "tracks_PT", "tracks_TRACK_CHI2", "tracks_TRACK_NDOF", "tracks_TRACK_CHI2NDOF", "tracks_TrackExtraInfo_NCandCommonHits", "tracks_TrackExtraInfo_FitMatchChi2" };
@@ -193,8 +192,7 @@ class ReadMLP : public IClassifierReader {
    int fLayers;
    //int fLayerSize[3];
    float fWeightMatrix0to1[26][22];   // weight matrix from layer 0 to 1
-   float fWeightMatrix1to2[1][27];   // weight matrix from layer 1 to 2
-   const float* secondmatrix;
+   float fWeightMatrix1to2[28];  // should be 27, but want to fill up to multiple of 4
 
    float * fWeights[3];
 };
@@ -783,33 +781,34 @@ inline void ReadMLP::Initialize()
    fWeightMatrix0to1[24][21] = 1.95160439161951;
    fWeightMatrix0to1[25][21] = 0.911413719927195;
    // weight matrix from layer 1 to 2
-   fWeightMatrix1to2[0][0] = 0.350478674377896;
-   fWeightMatrix1to2[0][1] = 0.639425978346642;
-   fWeightMatrix1to2[0][2] = 1.79782734900409;
-   fWeightMatrix1to2[0][3] = -1.41749209285838;
-   fWeightMatrix1to2[0][4] = 0.647801958396651;
-   fWeightMatrix1to2[0][5] = -0.924622894055662;
-   fWeightMatrix1to2[0][6] = 0.689271539323998;
-   fWeightMatrix1to2[0][7] = 0.553952194545968;
-   fWeightMatrix1to2[0][8] = -0.509656259715075;
-   fWeightMatrix1to2[0][9] = 0.413564812060211;
-   fWeightMatrix1to2[0][10] = 0.93790491065573;
-   fWeightMatrix1to2[0][11] = 0.383714987622616;
-   fWeightMatrix1to2[0][12] = 0.764343255506911;
-   fWeightMatrix1to2[0][13] = -0.669868357398989;
-   fWeightMatrix1to2[0][14] = -0.589075466768186;
-   fWeightMatrix1to2[0][15] = 0.349202902604477;
-   fWeightMatrix1to2[0][16] = -0.399168539814039;
-   fWeightMatrix1to2[0][17] = 1.39535519847176;
-   fWeightMatrix1to2[0][18] = 0.182527375798536;
-   fWeightMatrix1to2[0][19] = 0.472376089881539;
-   fWeightMatrix1to2[0][20] = -0.798382142280781;
-   fWeightMatrix1to2[0][21] = 0.547432452322488;
-   fWeightMatrix1to2[0][22] = -0.407442752745603;
-   fWeightMatrix1to2[0][23] = -0.281571940049474;
-   fWeightMatrix1to2[0][24] = 0.722611953783101;
-   fWeightMatrix1to2[0][25] = 1.76684009594162;
-   fWeightMatrix1to2[0][26] = -2.58087367945991;
+   fWeightMatrix1to2[0] = 0.350478674377896;
+   fWeightMatrix1to2[1] = 0.639425978346642;
+   fWeightMatrix1to2[2] = 1.79782734900409;
+   fWeightMatrix1to2[3] = -1.41749209285838;
+   fWeightMatrix1to2[4] = 0.647801958396651;
+   fWeightMatrix1to2[5] = -0.924622894055662;
+   fWeightMatrix1to2[6] = 0.689271539323998;
+   fWeightMatrix1to2[7] = 0.553952194545968;
+   fWeightMatrix1to2[8] = -0.509656259715075;
+   fWeightMatrix1to2[9] = 0.413564812060211;
+   fWeightMatrix1to2[10] = 0.93790491065573;
+   fWeightMatrix1to2[11] = 0.383714987622616;
+   fWeightMatrix1to2[12] = 0.764343255506911;
+   fWeightMatrix1to2[13] = -0.669868357398989;
+   fWeightMatrix1to2[14] = -0.589075466768186;
+   fWeightMatrix1to2[15] = 0.349202902604477;
+   fWeightMatrix1to2[16] = -0.399168539814039;
+   fWeightMatrix1to2[17] = 1.39535519847176;
+   fWeightMatrix1to2[18] = 0.182527375798536;
+   fWeightMatrix1to2[19] = 0.472376089881539;
+   fWeightMatrix1to2[20] = -0.798382142280781;
+   fWeightMatrix1to2[21] = 0.547432452322488;
+   fWeightMatrix1to2[22] = -0.407442752745603;
+   fWeightMatrix1to2[23] = -0.281571940049474;
+   fWeightMatrix1to2[24] = 0.722611953783101;
+   fWeightMatrix1to2[25] = 1.76684009594162;
+   fWeightMatrix1to2[26] = -2.58087367945991;
+   fWeightMatrix1to2[27] = 0.f; /// fill up to multiple of four
 }
 
 inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues ) const
@@ -863,42 +862,43 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues ) con
   
   {
     __m128 simd_in = _mm_load_ps(&fWeights[1][0]);
-    __m128 matrix = _mm_load_ps(&secondmatrix[0]);
+    __m128 matrix = _mm_load_ps(&fWeightMatrix1to2[0]);
     simd_in = ActivationFnc(simd_in);
     __m128 sum = _mm_mul_ps(simd_in,matrix);
 
     simd_in = _mm_load_ps(&fWeights[1][4]);
-    matrix = _mm_load_ps(&secondmatrix[4]);
+    matrix = _mm_load_ps(&fWeightMatrix1to2[4]);
     simd_in = ActivationFnc(simd_in);
     __m128 c = _mm_mul_ps(simd_in,matrix);
     sum = _mm_add_ps(sum,c);
 
     simd_in = _mm_load_ps(&fWeights[1][8]);
-    matrix = _mm_load_ps(&secondmatrix[8]);
+    matrix = _mm_load_ps(&fWeightMatrix1to2[8]);
     simd_in = ActivationFnc(simd_in);
     c = _mm_mul_ps(simd_in,matrix);
     sum = _mm_add_ps(sum,c);
 
     simd_in = _mm_load_ps(&fWeights[1][12]);
-    matrix = _mm_load_ps(&secondmatrix[12]);
+    matrix = _mm_load_ps(&fWeightMatrix1to2[12]);
     simd_in = ActivationFnc(simd_in);
     c = _mm_mul_ps(simd_in,matrix);
     sum = _mm_add_ps(sum,c);
 
     simd_in = _mm_load_ps(&fWeights[1][16]);
-    matrix = _mm_load_ps(&secondmatrix[16]);
+    matrix = _mm_load_ps(&fWeightMatrix1to2[16]);
     simd_in = ActivationFnc(simd_in);
     c = _mm_mul_ps(simd_in,matrix);
     sum = _mm_add_ps(sum,c);
 
     simd_in = _mm_load_ps(&fWeights[1][20]);
-    matrix = _mm_load_ps(&secondmatrix[20]);
+    matrix = _mm_load_ps(&fWeightMatrix1to2[20]);
     simd_in = ActivationFnc(simd_in);
     c = _mm_mul_ps(simd_in,matrix);
     sum = _mm_add_ps(sum,c);
 
     simd_in = (_mm_setr_ps(ActivationFnc(fWeights[1][24]),ActivationFnc(fWeights[1][25]),1.f,0.f));
-    matrix = (_mm_setr_ps(secondmatrix[24],secondmatrix[25],secondmatrix[26],0.f));
+    matrix = _mm_load_ps(&fWeightMatrix1to2[24]);
+    //matrix = (_mm_setr_ps(fWeightMatrix1to2[24],fWeightMatrix1to2[25],fWeightMatrix1to2[26],0.f));
     c =  _mm_mul_ps(simd_in,matrix);
     sum = _mm_add_ps(c,sum);
 
