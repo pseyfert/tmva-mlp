@@ -857,7 +857,7 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
       sum[oo] = _mm_add_ps(c,sum[oo]);
 
       simd_in = _mm_load_ps(&inputValues[20]);
-      matrix = (_mm_setr_ps(fWeightMatrix0to1[o+oo][20],fWeightMatrix0to1[o+oo][21],0.f,0.f));
+      matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][20]);
       c =  _mm_mul_ps(simd_in,matrix);
       sum[oo] = _mm_add_ps(c,sum[oo]);
 
