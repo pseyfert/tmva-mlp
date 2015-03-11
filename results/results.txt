@@ -103,3 +103,7 @@ GetMvaValue     294 635 718
 blowing up 0to1 matrix for alignment (complete usage)
 main          2 172 944 838
 GetMvaValue     229 161 114
+
++ -funroll-loops
+main          2 158 864 114
+GetMvaValue     215 080 554
