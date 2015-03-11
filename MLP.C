@@ -822,16 +822,16 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
   for (int i=0; i<27-1; i++) mWeights[i]=0.f;
   float retval(0.f);
 
-  // layer 0 to 1
-  for (int o=0; o<27-1; o+=4) {
+  int o = 0;
+  for (; o<24; o+=4) {
     __m128 sum[4];
-    for (int oo = 0 ; (oo<4&&o+oo<27-1) ; oo++) {
-      __m128 simd_in = _mm_load_ps(&inputValues[0]);
-      __m128 matrix = _mm_load_ps(&fWeightMatrix0to1[o][0]);
+    for (int oo = 0 ; oo<4 ; oo++) {
+      auto simd_in = _mm_load_ps(&inputValues[0]);
+      auto matrix = _mm_load_ps(&fWeightMatrix0to1[o][0]);
       sum[oo] = _mm_mul_ps(simd_in,matrix);
       simd_in = _mm_load_ps(&inputValues[4]);
       matrix = _mm_load_ps(&fWeightMatrix0to1[o][4]);
-      __m128 c =  _mm_mul_ps(simd_in,matrix);
+      auto c =  _mm_mul_ps(simd_in,matrix);
       sum[oo] = _mm_add_ps(c,sum[oo]);
 
       simd_in = _mm_load_ps(&inputValues[8]);
@@ -862,20 +862,61 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
     sum[0] = _mm_hadd_ps(sum[0],sum[2]);
     _mm_store_ps(&mWeights[o], sum[0]);
   }
+  // layer 0 to 1
+  o = 24;
+  {
+    __m128 sum[4];
+    for (int oo = 0 ; oo<2 ; oo++) { // o+oo < 27-1
+      auto simd_in = _mm_load_ps(&inputValues[0]);
+      auto matrix = _mm_load_ps(&fWeightMatrix0to1[o][0]);
+      sum[oo] = _mm_mul_ps(simd_in,matrix);
+      simd_in = _mm_load_ps(&inputValues[4]);
+      matrix = _mm_load_ps(&fWeightMatrix0to1[o][4]);
+      auto c =  _mm_mul_ps(simd_in,matrix);
+      sum[oo] = _mm_add_ps(c,sum[oo]);
+
+      simd_in = _mm_load_ps(&inputValues[8]);
+      matrix = _mm_load_ps(&fWeightMatrix0to1[o][8]);
+      c =  _mm_mul_ps(simd_in,matrix);
+      sum[oo] = _mm_add_ps(c,sum[oo]);
+
+
+      simd_in = _mm_load_ps(&inputValues[12]);
+      matrix = _mm_load_ps(&fWeightMatrix0to1[o][12]);
+      c =  _mm_mul_ps(simd_in,matrix);
+      sum[oo] = _mm_add_ps(c,sum[oo]);
+
+
+      simd_in = _mm_load_ps(&inputValues[16]);
+      matrix = _mm_load_ps(&fWeightMatrix0to1[o][16]);
+      c =  _mm_mul_ps(simd_in,matrix);
+      sum[oo] = _mm_add_ps(c,sum[oo]);
+
+      simd_in = _mm_load_ps(&inputValues[20]);
+      matrix = (_mm_setr_ps(fWeightMatrix0to1[o][20],fWeightMatrix0to1[o][21],0.f,0.f));
+      c =  _mm_mul_ps(simd_in,matrix);
+      sum[oo] = _mm_add_ps(c,sum[oo]);
+
+    }
+    sum[0] = _mm_hadd_ps(sum[0],sum[1]);
+    //sum[2] = _mm_hadd_ps(sum[2],sum[3]); // superfluous in the last loop
+    sum[0] = _mm_hadd_ps(sum[0],sum[0]);
+    _mm_store_ps(&mWeights[o], sum[0]);
+  }
   
   mWeights[26] = 1e10f;
   mWeights[27] = 0.f;
   {
-    __m128 simd_in = _mm_load_ps(&mWeights[0]);
-    __m128 matrix = _mm_load_ps(&fWeightMatrix1to2[0]);
+    auto simd_in = _mm_load_ps(&mWeights[0]);
+    auto matrix = _mm_load_ps(&fWeightMatrix1to2[0]);
     simd_in = ActivationFnc(simd_in);
-    __m128 sum = _mm_mul_ps(simd_in,matrix);
+    auto sum = _mm_mul_ps(simd_in,matrix);
 
 
     simd_in = _mm_load_ps(&mWeights[4]);
     matrix = _mm_load_ps(&fWeightMatrix1to2[4]);
     simd_in = ActivationFnc(simd_in);
-    __m128 c = _mm_mul_ps(simd_in,matrix);
+    auto c = _mm_mul_ps(simd_in,matrix);
     sum = _mm_add_ps(sum,c);
 
     simd_in = _mm_load_ps(&mWeights[8]);
@@ -912,7 +953,6 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
     sum = _mm_hadd_ps(sum,sum);
 
     sum = ActivationFnc(sum);
-  /// OR STILL DO THIS IN SSE????
     _mm_store_ss(&retval, sum);
 
   }
@@ -944,8 +984,8 @@ inline void ReadMLP::Dummy() {
 }
 
 inline __m128 ReadMLP::ActivationFnc(__m128 x) const {
-   __m128 buffer = _mm_mul_ps(x,x);
-   __m128 one = _mm_set1_ps(1.f);
+   auto buffer = _mm_mul_ps(x,x);
+   auto one = _mm_set1_ps(1.f);
    buffer = _mm_add_ps(one,buffer);
    buffer = _mm_rsqrt_ps(buffer);
    return _mm_mul_ps(x,buffer);
@@ -1133,10 +1173,10 @@ inline void ReadMLP::Transform_1( std::vector<float>& iv, int cls) const
    }
    int ivar=0;
    for (;ivar+3<24;ivar+=4) {
-     __m128 vars = _mm_load_ps(&iv[ivar]);
-     __m128 mins = _mm_load_ps(&fMin_1[cls][ivar]);
-     __m128 scal = _mm_load_ps(&fscale[cls][ivar]);
-     __m128 one = _mm_set1_ps(1.f);
+     auto vars = _mm_load_ps(&iv[ivar]);
+     auto mins = _mm_load_ps(&fMin_1[cls][ivar]);
+     auto scal = _mm_load_ps(&fscale[cls][ivar]);
+     auto one = _mm_set1_ps(1.f);
 
      vars = _mm_sub_ps(vars,mins);
      vars = _mm_mul_ps(vars,scal);
