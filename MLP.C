@@ -827,32 +827,32 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
     __m128 sum[4];
     for (int oo = 0 ; (oo<4&&o+oo<27-1) ; oo++) {
       __m128 simd_in = _mm_load_ps(&inputValues[0]);
-      __m128 matrix = _mm_load_ps(&fWeightMatrix0to1[o][0]);
+      __m128 matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][0]);
       sum[oo] = _mm_mul_ps(simd_in,matrix);
       simd_in = _mm_load_ps(&inputValues[4]);
-      matrix = _mm_load_ps(&fWeightMatrix0to1[o][4]);
+      matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][4]);
       __m128 c =  _mm_mul_ps(simd_in,matrix);
       sum[oo] = _mm_add_ps(c,sum[oo]);
 
       simd_in = _mm_load_ps(&inputValues[8]);
-      matrix = _mm_load_ps(&fWeightMatrix0to1[o][8]);
+      matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][8]);
       c =  _mm_mul_ps(simd_in,matrix);
       sum[oo] = _mm_add_ps(c,sum[oo]);
 
 
       simd_in = _mm_load_ps(&inputValues[12]);
-      matrix = _mm_load_ps(&fWeightMatrix0to1[o][12]);
+      matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][12]);
       c =  _mm_mul_ps(simd_in,matrix);
       sum[oo] = _mm_add_ps(c,sum[oo]);
 
 
       simd_in = _mm_load_ps(&inputValues[16]);
-      matrix = _mm_load_ps(&fWeightMatrix0to1[o][16]);
+      matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][16]);
       c =  _mm_mul_ps(simd_in,matrix);
       sum[oo] = _mm_add_ps(c,sum[oo]);
 
       simd_in = _mm_load_ps(&inputValues[20]);
-      matrix = (_mm_setr_ps(fWeightMatrix0to1[o][20],fWeightMatrix0to1[o][21],0.f,0.f));
+      matrix = (_mm_setr_ps(fWeightMatrix0to1[o+oo][20],fWeightMatrix0to1[o+oo][21],0.f,0.f));
       c =  _mm_mul_ps(simd_in,matrix);
       sum[oo] = _mm_add_ps(c,sum[oo]);
 
