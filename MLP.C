@@ -911,12 +911,12 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
     sum = _mm_hadd_ps(sum,sum);
     sum = _mm_hadd_ps(sum,sum);
 
+    sum = ActivationFnc(sum);
+  /// OR STILL DO THIS IN SSE????
     _mm_store_ss(&retval, sum);
 
   }
 
-  retval = ActivationFnc(retval);
-  /// OR STILL DO THIS IN SSE????
 
   return retval;
 }
