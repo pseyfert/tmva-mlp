@@ -201,7 +201,7 @@ class ReadMLP : public IClassifierReader {
 inline void ReadMLP::Initialize()
 {
   //Dummy();
-  mWeights = new float[26];// should be 26, but want to fill up to multiple of 4
+  mWeights = new float[28];// should be 26, but want to fill up to multiple of 4
   // mWeights[26] = 1.f;
   // mWeights[27] = 0.f;
   //
@@ -857,22 +857,14 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
       sum[oo] = _mm_add_ps(c,sum[oo]);
 
     }
-    if (o<24) {
-      sum[0] = _mm_hadd_ps(sum[0],sum[1]);
-      sum[2] = _mm_hadd_ps(sum[2],sum[3]);
-      sum[0] = _mm_hadd_ps(sum[0],sum[2]);
-      _mm_store_ps(&mWeights[o], sum[0]);
-    } else { // else o is 24 and the targets are 24 and 25
-      float buffer[4];
-      sum[0] = _mm_hadd_ps(sum[0],sum[1]);
-      sum[0] = _mm_hadd_ps(sum[0],sum[1]);
-      _mm_store_ps(buffer, sum[0]);
-      mWeights[24] = buffer[0];
-      mWeights[25] = buffer[1];
-      // actually, if mWeights gets blown up to 28, which will be numerically cancelled, this can be avoided
-    }
+    sum[0] = _mm_hadd_ps(sum[0],sum[1]);
+    sum[2] = _mm_hadd_ps(sum[2],sum[3]); // superfluous in the last loop
+    sum[0] = _mm_hadd_ps(sum[0],sum[2]);
+    _mm_store_ps(&mWeights[o], sum[0]);
   }
   
+  mWeights[26] = 1e10f;
+  mWeights[27] = 0.f;
   {
     __m128 simd_in = _mm_load_ps(&mWeights[0]);
     __m128 matrix = _mm_load_ps(&fWeightMatrix1to2[0]);
@@ -910,8 +902,8 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
     c = _mm_mul_ps(simd_in,matrix);
     sum = _mm_add_ps(sum,c);
 
-//    simd_in = _mm_load_ps(&fWeights[24]);
-    simd_in = (_mm_setr_ps(ActivationFnc(mWeights[24]),ActivationFnc(mWeights[25]),1.f,0.f));
+    simd_in = _mm_load_ps(&fWeights[24]);
+    simd_in = ActivationFnc(simd_in);
     matrix = _mm_load_ps(&fWeightMatrix1to2[24]);
     c =  _mm_mul_ps(simd_in,matrix);
     sum = _mm_add_ps(c,sum);
