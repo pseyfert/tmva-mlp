@@ -53,3 +53,19 @@ GetMvaValue     361 870 392
 version 13:
 main          3 271 062 148
 GetMvaValue     343 213 650
+
+3b6a434d73e039af2b3c382d26ffc3204d4b5d24
+main          2 296 503 769
+GetMvaValue     352 718 028
+
+364874c304052467362d66e7b22158f01dea4a8b
+main          2 300 384 196
+GetMvaValue     356 590 182
+
+8410ced986b3920a40092e8f047760a004bcd0ca
+main          2 266 989 519
+GetMvaValue     323 148 852
+
+1d8d1544078ae35b2baa7fa8f2b00fa403d7074f
+main          2 263 069 623
+GetMvaValue     319 276 698
