@@ -819,7 +819,6 @@ inline void ReadMLP::Initialize()
 inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
 {
 
-  for (int i=0; i<27-1; i++) mWeights[i]=0.f;
   float retval(0.f);
 
   // layer 0 to 1
