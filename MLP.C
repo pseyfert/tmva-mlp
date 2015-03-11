@@ -162,7 +162,6 @@ class ReadMLP : public IClassifierReader {
    // input variable transformation
 
    float fMin_1[3][24];
-   float fMax_1[3][24];
    float fscale[3][24];
    void InitTransform_1();
    void Transform_1( std::vector<float> & iv, int sigOrBgd ) const;
@@ -966,6 +965,7 @@ inline float ReadMLP::GetMvaValue( std::vector<float>& inputValues )
 inline void ReadMLP::InitTransform_1()
 {
    // Normalization transformation, initialisation
+   float fMax_1[3][24];
    fMin_1[0][0] = 6;
    fMax_1[0][0] = 34;
    fMin_1[1][0] = 6;
