@@ -823,9 +823,10 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
   float retval(0.f);
 
   // layer 0 to 1
-  for (int o=0; o<27-1; o+=4) {
+  int o = 0;
+  for (; o<24; o+=4) {
     __m128 sum[4];
-    for (int oo = 0 ; (oo<4&&o+oo<27-1) ; oo++) {
+    for (int oo = 0 ; oo<4 ; oo++) {
       __m128 simd_in = _mm_load_ps(&inputValues[0]);
       __m128 matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][0]);
       sum[oo] = _mm_mul_ps(simd_in,matrix);
@@ -860,6 +861,45 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
     sum[0] = _mm_hadd_ps(sum[0],sum[1]);
     sum[2] = _mm_hadd_ps(sum[2],sum[3]); // superfluous in the last loop
     sum[0] = _mm_hadd_ps(sum[0],sum[2]);
+    _mm_store_ps(&mWeights[o], sum[0]);
+  }
+  o = 24; {
+    __m128 sum[2];
+    for (int oo = 0 ; oo<2 ; oo++) {
+      __m128 simd_in = _mm_load_ps(&inputValues[0]);
+      __m128 matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][0]);
+      sum[oo] = _mm_mul_ps(simd_in,matrix);
+      simd_in = _mm_load_ps(&inputValues[4]);
+      matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][4]);
+      __m128 c =  _mm_mul_ps(simd_in,matrix);
+      sum[oo] = _mm_add_ps(c,sum[oo]);
+
+      simd_in = _mm_load_ps(&inputValues[8]);
+      matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][8]);
+      c =  _mm_mul_ps(simd_in,matrix);
+      sum[oo] = _mm_add_ps(c,sum[oo]);
+
+
+      simd_in = _mm_load_ps(&inputValues[12]);
+      matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][12]);
+      c =  _mm_mul_ps(simd_in,matrix);
+      sum[oo] = _mm_add_ps(c,sum[oo]);
+
+
+      simd_in = _mm_load_ps(&inputValues[16]);
+      matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][16]);
+      c =  _mm_mul_ps(simd_in,matrix);
+      sum[oo] = _mm_add_ps(c,sum[oo]);
+
+      simd_in = _mm_load_ps(&inputValues[20]);
+      matrix = (_mm_setr_ps(fWeightMatrix0to1[o+oo][20],fWeightMatrix0to1[o+oo][21],0.f,0.f));
+      c =  _mm_mul_ps(simd_in,matrix);
+      sum[oo] = _mm_add_ps(c,sum[oo]);
+
+    }
+    sum[0] = _mm_hadd_ps(sum[0],sum[1]);
+    //sum[2] = _mm_hadd_ps(sum[2],sum[3]); // superfluous in the last loop
+    sum[0] = _mm_hadd_ps(sum[0],sum[0]);
     _mm_store_ps(&mWeights[o], sum[0]);
   }
   
