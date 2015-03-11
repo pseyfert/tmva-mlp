@@ -192,7 +192,7 @@ class ReadMLP : public IClassifierReader {
 
    int fLayers;
    //int fLayerSize[3];
-   float fWeightMatrix0to1[26][22];   // weight matrix from layer 0 to 1
+   float fWeightMatrix0to1[26][24];   // weight matrix from layer 0 to 1
    float fWeightMatrix1to2[28];  // should be 27, but want to fill up to multiple of 4
 
   float* mWeights;
@@ -784,6 +784,11 @@ inline void ReadMLP::Initialize()
    fWeightMatrix0to1[23][21] = -0.164779393202128;
    fWeightMatrix0to1[24][21] = 1.95160439161951;
    fWeightMatrix0to1[25][21] = 0.911413719927195;
+
+   for (int o = 0 ; o < 25 ; ++o) {
+     fWeightMatrix0to1[o][22] = 0.f;
+     fWeightMatrix0to1[o][23] = 0.f;
+   }
    // weight matrix from layer 1 to 2
    fWeightMatrix1to2[0] = 0.350478674377896;
    fWeightMatrix1to2[1] = 0.639425978346642;
@@ -891,7 +896,7 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
       sum[oo] = _mm_add_ps(c,sum[oo]);
 
       simd_in = _mm_load_ps(&inputValues[20]);
-      matrix = (_mm_setr_ps(fWeightMatrix0to1[o+oo][20],fWeightMatrix0to1[o+oo][21],0.f,0.f));
+      matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][20]);
       c =  _mm_mul_ps(simd_in,matrix);
       sum[oo] = _mm_add_ps(c,sum[oo]);
 
@@ -902,7 +907,7 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
     _mm_store_ps(&mWeights[o], sum[0]);
   }
   
-  mWeights[26] = 1e10f;
+  mWeights[26] = 1e10f; // activation(1e10) = 1
   mWeights[27] = 0.f;
   {
     __m128 simd_in = _mm_load_ps(&mWeights[0]);
@@ -951,7 +956,6 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
     sum = _mm_hadd_ps(sum,sum);
 
     sum = ActivationFnc(sum);
-  /// OR STILL DO THIS IN SSE????
     _mm_store_ss(&retval, sum);
 
   }
