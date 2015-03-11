@@ -62,10 +62,23 @@ GetMvaValue     352 718 028
 main          2 300 384 196
 GetMvaValue     356 590 182
 
-8410ced986b3920a40092e8f047760a004bcd0ca
+8410ced986b3920a40092e8f047760a004bcd0ca (with unroll loops)
 main          2 266 989 519
 GetMvaValue     323 148 852
 
-1d8d1544078ae35b2baa7fa8f2b00fa403d7074f
+same again (no unroll loops)
+main          2 279 302 467
+GetMvaValue     335 469 342
+
+
+1d8d1544078ae35b2baa7fa8f2b00fa403d7074f (with unroll loops)
 main          2 263 069 623
 GetMvaValue     319 276 698
+
+same again (no unroll loops)
+main          2 275 429 821
+GetMvaValue     331 597 188
+
+no -funroll-loops but with -std=c++11
+main          2 275 384 412
+GetMvaValue     331 597 188
