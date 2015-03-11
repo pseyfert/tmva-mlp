@@ -856,10 +856,20 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
       c =  _mm_mul_ps(simd_in,matrix);
       sum[oo] = _mm_add_ps(c,sum[oo]);
 
-    sum[oo] = _mm_hadd_ps(sum[oo],sum[oo]);
-    sum[oo] = _mm_hadd_ps(sum[oo],sum[oo]);
-
-    _mm_store_ss(&mWeights[o], sum[oo]);
+    }
+    if (o<24) {
+      sum[0] = _mm_hadd_ps(sum[0],sum[1]);
+      sum[2] = _mm_hadd_ps(sum[2],sum[3]);
+      sum[0] = _mm_hadd_ps(sum[0],sum[2]);
+      _mm_store_ps(&mWeights[o], sum[0]);
+    } else { // else o is 24 and the targets are 24 and 25
+      float buffer[4];
+      sum[0] = _mm_hadd_ps(sum[0],sum[1]);
+      sum[0] = _mm_hadd_ps(sum[0],sum[1]);
+      _mm_store_ps(buffer, sum[0]);
+      mWeights[24] = buffer[0];
+      mWeights[25] = buffer[1];
+      // actually, if mWeights gets blown up to 28, which will be numerically cancelled, this can be avoided
     }
   }
   
