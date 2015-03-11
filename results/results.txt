@@ -82,3 +82,7 @@ GetMvaValue     331 597 188
 no -funroll-loops but with -std=c++11
 main          2 275 384 412
 GetMvaValue     331 597 188
+
+e5ced3da7e600bc424edaf9c971fd9d193b122d1
+main          2 315 866 022
+GetMvaValue     372 078 798
