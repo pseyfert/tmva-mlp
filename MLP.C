@@ -194,11 +194,12 @@ class ReadMLP : public IClassifierReader {
    float fWeightMatrix0to1[26][22];   // weight matrix from layer 0 to 1
    float fWeightMatrix1to2[28];  // should be 27, but want to fill up to multiple of 4
 
-   float fWeights[26];
+  float* mWeights;
 };
 
 inline void ReadMLP::Initialize()
 {
+  mWeights = new float[26];
    // build network structure
    fLayers = 3;
    //fLayerSize[0] = 22;
@@ -815,9 +816,8 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
     return 0;
   }
 
-  for (int i=0; i<27-1; i++) fWeights[i]=0.f;
+  for (int i=0; i<27-1; i++) mWeights[i]=0.f;
   float retval(0.f);
-
 
   // layer 0 to 1
   for (int o=0; o<27-1; o++) {
@@ -854,46 +854,47 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
     sum = _mm_hadd_ps(sum,sum);
     sum = _mm_hadd_ps(sum,sum);
 
-    _mm_store_ss(&fWeights[o], sum);
+    _mm_store_ss(&mWeights[o], sum);
   }
   
   {
-    __m128 simd_in = _mm_load_ps(&fWeights[0]);
+    __m128 simd_in = _mm_load_ps(&mWeights[0]);
     __m128 matrix = _mm_load_ps(&fWeightMatrix1to2[0]);
     simd_in = ActivationFnc(simd_in);
     __m128 sum = _mm_mul_ps(simd_in,matrix);
 
-    simd_in = _mm_load_ps(&fWeights[4]);
+
+    simd_in = _mm_load_ps(&mWeights[4]);
     matrix = _mm_load_ps(&fWeightMatrix1to2[4]);
     simd_in = ActivationFnc(simd_in);
     __m128 c = _mm_mul_ps(simd_in,matrix);
     sum = _mm_add_ps(sum,c);
 
-    simd_in = _mm_load_ps(&fWeights[8]);
+    simd_in = _mm_load_ps(&mWeights[8]);
     matrix = _mm_load_ps(&fWeightMatrix1to2[8]);
     simd_in = ActivationFnc(simd_in);
     c = _mm_mul_ps(simd_in,matrix);
     sum = _mm_add_ps(sum,c);
 
-    simd_in = _mm_load_ps(&fWeights[12]);
+    simd_in = _mm_load_ps(&mWeights[12]);
     matrix = _mm_load_ps(&fWeightMatrix1to2[12]);
     simd_in = ActivationFnc(simd_in);
     c = _mm_mul_ps(simd_in,matrix);
     sum = _mm_add_ps(sum,c);
 
-    simd_in = _mm_load_ps(&fWeights[16]);
+    simd_in = _mm_load_ps(&mWeights[16]);
     matrix = _mm_load_ps(&fWeightMatrix1to2[16]);
     simd_in = ActivationFnc(simd_in);
     c = _mm_mul_ps(simd_in,matrix);
     sum = _mm_add_ps(sum,c);
 
-    simd_in = _mm_load_ps(&fWeights[20]);
+    simd_in = _mm_load_ps(&mWeights[20]);
     matrix = _mm_load_ps(&fWeightMatrix1to2[20]);
     simd_in = ActivationFnc(simd_in);
     c = _mm_mul_ps(simd_in,matrix);
     sum = _mm_add_ps(sum,c);
 
-    simd_in = (_mm_setr_ps(ActivationFnc(fWeights[24]),ActivationFnc(fWeights[25]),1.f,0.f));
+    simd_in = (_mm_setr_ps(ActivationFnc(mWeights[24]),ActivationFnc(mWeights[25]),1.f,0.f));
     matrix = _mm_load_ps(&fWeightMatrix1to2[24]);
     //matrix = (_mm_setr_ps(fWeightMatrix1to2[24],fWeightMatrix1to2[25],fWeightMatrix1to2[26],0.f));
     c =  _mm_mul_ps(simd_in,matrix);
@@ -903,6 +904,7 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
     sum = _mm_hadd_ps(sum,sum);
 
     _mm_store_ss(&retval, sum);
+
   }
 
   retval = ActivationFnc(retval);
@@ -926,6 +928,7 @@ inline float ReadMLP::ActivationFnc(float x) const {
 // Clean up
 inline void ReadMLP::Clear() 
 {
+  delete[] mWeights;
 }
 inline float ReadMLP::GetMvaValue( std::vector<float>& inputValues )
 {
