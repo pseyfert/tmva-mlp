@@ -145,13 +145,6 @@ class ReadMLP : public IClassifierReader {
    void InitTransform();
    void Transform( std::vector<float> & iv, int sigOrBgd ) const;
 
-
-   // normalisation of input variables
-   float NormVariable( float x, float xmin, float xmax ) const {
-      // normalise to output range: [-1, 1]
-      return 2*(x - xmin)/(xmax - xmin) - 1.0;
-   }
-
    // initialize internal variables
    void Initialize();
    void Dummy();
@@ -162,8 +155,6 @@ class ReadMLP : public IClassifierReader {
    float ActivationFnc(float x) const;
    __m128 ActivationFnc(__m128 x) const;
 
-   int fLayers;
-   //int fLayerSize[3];
    float fWeightMatrix0to1[26][24];   // weight matrix from layer 0 to 1
    float fWeightMatrix1to2[28];  // should be 27, but want to fill up to multiple of 4
 
@@ -173,11 +164,6 @@ inline void ReadMLP::Initialize()
 {
   //Dummy();
   //
-   // build network structure
-   fLayers = 3;
-   //fLayerSize[0] = 22;
-   //fLayerSize[1] = 27;
-   //fLayerSize[2] = 1;
    // weight matrix from layer 0 to 1
    fWeightMatrix0to1[0][0] = -1.29181860423292;
    fWeightMatrix0to1[1][0] = 0.903804335642756;
@@ -789,7 +775,7 @@ inline void ReadMLP::Initialize()
 inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
 {
 
-  float retval(0.f);
+  float retval;
   __m128 oneeten = _mm_set_ss( 1e10f );
 
   __m128 lWeights[7];
@@ -870,8 +856,7 @@ inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
 
     }
     sum[0] = _mm_hadd_ps(sum[0],sum[1]);
-    //sum[0] = _mm_hadd_ps(sum[0],sum[0]);
-    lWeights[o/4] = _mm_hadd_ps(sum[0],oneeten); // FIX LAST TWO!
+    lWeights[o/4] = _mm_hadd_ps(sum[0],oneeten);
   }
   
   {
