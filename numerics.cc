@@ -1,5 +1,7 @@
 #include <TChain.h>
 #include <TTree.h>
+#include <TH2F.h>
+#include <TCanvas.h>
 #include <string>
 #include <vector>
 
@@ -17,6 +19,7 @@ class IClassifierReader {
 };
 
 #include "./MLP.C"
+#include "./oldMLP.C"
 
 int main() {
 
@@ -78,13 +81,25 @@ int main() {
   }
 
   IClassifierReader* classifier = new ReadMLP(vars);
+  IClassifierReader* oldclassifier = new ReadoldMLP(vars);
 
+  TH2F* h = new TH2F("h","h",200,-1,1,200,-1,1);
   for (unsigned u = 0u ; u < kette->GetEntriesFast() ; ++u) {
+    fvars[21]=1.f;
+    fvars[22]=0.f;
+    fvars[23]=0.f;
     kette->GetEntry(u);
+    float o = oldclassifier->GetMvaValue(fvars);
     fvars[21]=2.f;
     fvars[22]=1.f;
     fvars[23]=1.f;
-    classifier->GetMvaValue(fvars);
+    kette->GetEntry(u);
+    float n = classifier->GetMvaValue(fvars);
+
+    h->Fill(o,n);
   }
+  TCanvas* c = new TCanvas();
+  h->Draw("colz");
+  c->Print("hist.eps");
   return 0;
 }

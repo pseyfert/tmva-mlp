@@ -80,11 +80,14 @@ int main() {
   IClassifierReader* classifier = new ReadMLP(vars);
 
   for (unsigned u = 0u ; u < kette->GetEntriesFast() ; ++u) {
-    kette->GetEntry(u);
-    fvars[21]=2.f;
-    fvars[22]=1.f;
-    fvars[23]=1.f;
-    classifier->GetMvaValue(fvars);
+    for (unsigned k = 0u; k < 50 ; ++k) {
+      kette->GetEntry(u);
+      fvars[21]=2.f;
+      fvars[22]=1.f;
+      fvars[23]=1.f;
+      classifier->GetMvaValue(fvars);
+
+    }
   }
   return 0;
 }
