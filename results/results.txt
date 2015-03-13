@@ -107,3 +107,11 @@ GetMvaValue     229 161 114
 + -funroll-loops
 main          2 158 864 114
 GetMvaValue     215 080 554
+
+a283cdb8e4f4964492079c581c092c49da788692
+main          2 155 772 571
+GetMvaValue     210 504 372
+
+explicit memory alignment (for no -mavx)
+main          2 155 772 571
+GetMvaValue     210 504 372

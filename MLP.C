@@ -138,8 +138,8 @@ class ReadMLP : public IClassifierReader {
 
    // input variable transformation
 
-   float fMin_1[3][24];
-   float fscale[3][24];
+   float fMin_1[3][24] __attribute__ ((aligned (16)));
+   float fscale[3][24] __attribute__ ((aligned (16)));
    void InitTransform_1();
    void Transform_1( std::vector<float> & iv, int sigOrBgd ) const;
    void InitTransform();
@@ -155,8 +155,8 @@ class ReadMLP : public IClassifierReader {
    float ActivationFnc(float x) const;
    __m128 ActivationFnc(__m128 x) const;
 
-   float fWeightMatrix0to1[26][24];   // weight matrix from layer 0 to 1
-   float fWeightMatrix1to2[28];  // should be 27, but want to fill up to multiple of 4
+   float fWeightMatrix0to1[26][24] __attribute__ ((aligned (16)));   // weight matrix from layer 0 to 1
+   float fWeightMatrix1to2[28] __attribute__ ((aligned (16)));  // should be 27, but want to fill up to multiple of 4
 
 };
 
@@ -952,7 +952,7 @@ inline float ReadMLP::GetMvaValue( std::vector<float>& inputValues )
 inline void ReadMLP::InitTransform_1()
 {
    // Normalization transformation, initialisation
-   float fMax_1[3][24];
+   float fMax_1[3][24] __attribute__ ((aligned (16)));
    fMin_1[0][0] = 6;
    fMax_1[0][0] = 34;
    fMin_1[1][0] = 6;
