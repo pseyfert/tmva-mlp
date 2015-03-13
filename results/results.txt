@@ -119,3 +119,6 @@ GetMvaValue     210 504 372
 storing second matrix directly in __m128
 main          2 155 733 469
 GetMvaValue     210 504 372
+
++PGO
+main          2 214 554 987
