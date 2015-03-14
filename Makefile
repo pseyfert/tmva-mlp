@@ -3,7 +3,7 @@ CXX=$(shell root-config --cxx)
 LD=$(shell root-config --ld)
 LDFLAGS=$(shell root-config --libs)
 CXXFLAGS=$(shell root-config --cflags)
-MYFLAGS=-fabi-version=6 -O2 -g -Wall -Wextra -m64 -mabm -maes  -malign-stringops  -mavx  -mfancy-math-387  -mfentry  -mfp-ret-in-387  -mglibc  -mhard-float  -mieee-fp   -msse  -msse2  -msse3 -ftree-vectorize -std=c++11 -funroll-loops #-fprofile-use #-fprofile-generate 
+MYFLAGS=-fabi-version=6 -O2 -g -Wall -Wextra -m64 -mabm -maes  -malign-stringops  -mavx  -mfancy-math-387  -mfentry  -mfp-ret-in-387  -mglibc  -mhard-float  -mieee-fp   -msse  -msse2  -msse3 -mfma -ftree-vectorize -std=c++11 -funroll-loops #-fprofile-use #-fprofile-generate 
 CALLGRIND= valgrind --tool=callgrind -v --dump-instr=yes --trace-jump=yes --smc-check=all-non-file --callgrind-out-file=callgrind.out ./main > main.log &> callgrind.log
 
 numerics.o: numerics.cc MLP.C oldMLP.C
