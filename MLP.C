@@ -166,7 +166,8 @@ class ReadMLP : public IClassifierReader {
 inline void ReadMLP::Initialize()
 {
   //Dummy();
-   oneeten = _mm256_set_ps(1e10f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f);
+   //oneeten = _mm256_set_ps(0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 1e10f);
+   oneeten = _mm256_set1_ps(1e10f); /// same result but less headache
   //
    // weight matrix from layer 0 to 1
    fWeightMatrix0to1[0][0] = -1.29181860423292;
