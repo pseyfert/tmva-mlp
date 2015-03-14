@@ -1,3 +1,4 @@
+=== standard code ===
 initial:
 main          5 973 719 066
 GetMvaValue   3 045 311 394
@@ -42,6 +43,7 @@ adding fma inspired initialisation ed16602ab44a146473e9110ef25cd884867f678d
 main          3 568 704 842
 GetMvaValue   1 624 896 624
 
+=== SSE3 ===
 version 10:
 main          3 483 725 125
 GetMvaValue     555 830 106
@@ -131,6 +133,7 @@ GetMvaValue     208 744 302
 +PGO
 main          2 214 554 987
 
+=== AVX ===
 avx
 main          2 087 473 287
 GetMvaValue     142 213 656
@@ -139,6 +142,7 @@ fma inspired initialisation 591eda06c10c572d9fa6805246b1e53d5d83d788
 main          2 086 065 372
 GetMvaValue     140 805 600
 
+=== FMA ===
 using fma 2c47fcbdc56296c03a86696a06e860031e96b611
 main          2 086 065 363
 GetMvaValue     140 805 600
