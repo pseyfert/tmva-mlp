@@ -37,3 +37,7 @@ GetMvaValue   2 456 731 411
 version 9:
 main          4 555 595 500
 GetMvaValue   1 627 712 736
+
+adding fma inspired initialisation ed16602ab44a146473e9110ef25cd884867f678d
+main          3 568 704 842
+GetMvaValue   1 624 896 624
