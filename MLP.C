@@ -140,9 +140,9 @@ class ReadMLP : public IClassifierReader {
    // input variable transformation
 
    void InitTransform_1();
-   void Transform_1( std::vector<float> & iv, int sigOrBgd );
+   void Transform_1( std::vector<float> & iv );
    void InitTransform();
-   void Transform( std::vector<float> & iv, int sigOrBgd );
+   void Transform( std::vector<float> & iv );
 
    // initialize internal variables
    void Initialize();
@@ -158,8 +158,8 @@ class ReadMLP : public IClassifierReader {
    float fWeightMatrix0to1[26][24] __attribute__ ((aligned (32)));   // weight matrix from layer 0 to 1
    __m256 matrix1to2[4];
    __m256 invals[3];
-   __m256 fMin_1[3][3];
-   __m256 fscale[3][3];
+   __m256 fMin_1[3];
+   __m256 fscale[3];
 
   __m256 oneeten;
 };
@@ -922,7 +922,7 @@ inline void ReadMLP::Clear()
 }
 inline float ReadMLP::GetMvaValue( std::vector<float>& inputValues )
 {
-  Transform( inputValues, -1 );
+  Transform( inputValues );
   return GetMvaValue__(  );
 }
 
@@ -1087,30 +1087,25 @@ inline void ReadMLP::InitTransform_1()
        lMin_1[cls][ivar] = lMin_1[cls][ivar]*lscale[cls][ivar] + 1.f;
      }
    }
-   for (int cls = 0 ; cls < 3 ; ++cls) {
+   {
+     int cls = 2;
      for (int ivar = 0;ivar+7<24;ivar+=8) {
-       fMin_1[cls][ivar/8] = _mm256_load_ps(&lMin_1[cls][ivar]);
-       fscale[cls][ivar/8] = _mm256_load_ps(&lscale[cls][ivar]);
+       fMin_1[ivar/8] = _mm256_load_ps(&lMin_1[cls][ivar]);
+       fscale[ivar/8] = _mm256_load_ps(&lscale[cls][ivar]);
      }
    }
 }
 
 //_______________________________________________________________________
-inline void ReadMLP::Transform_1( std::vector<float>& iv, int cls)
+inline void ReadMLP::Transform_1( std::vector<float>& iv )
 {
    // Normalization transformation
-   if (cls < 0 || cls > 2) {
-   if (2 > 1 ) cls = 2;
-      else cls = 2;
-   }
    float inputValues[24] __attribute__ ((aligned (32)));
    __m256 vars[3];
    for (unsigned k = 0 ; k < 24 ; ++k) inputValues[k] = iv[k];
    for (int ivar = 0;ivar+7<24;ivar+=8) {
      vars[ivar/8] = _mm256_load_ps(&inputValues[ivar]);
-   }
-   for (int ivar = 0;ivar+7<24;ivar+=8) {
-     invals[ivar/8] = _mm256_fmsub_ps(vars[ivar/8],fscale[cls][ivar/8],fMin_1[cls][ivar/8]);
+     invals[ivar/8] = _mm256_fmsub_ps(vars[ivar/8],fscale[ivar/8],fMin_1[ivar/8]);
    }
 //   for (;ivar<21;ivar++) { // catch the rest
 //      iv[ivar] = iv[ivar]-fMin_1[cls][ivar];
@@ -1125,7 +1120,7 @@ inline void ReadMLP::InitTransform()
 }
 
 //_______________________________________________________________________
-inline void ReadMLP::Transform( std::vector<float>& iv, int sigOrBgd )
+inline void ReadMLP::Transform( std::vector<float>& iv )
 {
-   Transform_1( iv, sigOrBgd );
+   Transform_1( iv );
 }
