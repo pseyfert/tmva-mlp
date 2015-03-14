@@ -1094,6 +1094,11 @@ inline void ReadMLP::InitTransform_1()
        fscale[ivar/8] = _mm256_load_ps(&lscale[cls][ivar]);
      }
    }
+   for (int cls = 0 ; cls < 3 ; ++cls) {
+     for (int ivar=0;ivar<21;ivar++) {
+       fMin_1[cls][ivar] = fMin_1[cls][ivar]*fscale[cls][ivar] + 1.f;
+     }
+   }
 }
 
 //_______________________________________________________________________
