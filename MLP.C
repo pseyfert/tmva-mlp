@@ -1099,6 +1099,11 @@ inline void ReadMLP::InitTransform_1()
        fMin_1[cls][ivar] = fMin_1[cls][ivar]*fscale[cls][ivar] + 1.f;
      }
    }
+   for (int cls = 0 ; cls < 3 ; ++cls) {
+     for (int ivar = 0 ; ivar<24 ; ++ivar) {
+       fMin_1[cls][ivar] = fMin_1[cls][ivar]*fscale[cls][ivar] + 1.f;
+     }
+   }
 }
 
 //_______________________________________________________________________
