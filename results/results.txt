@@ -131,10 +131,10 @@ fma inspired initialisation 591eda06c10c572d9fa6805246b1e53d5d83d788
 main          2 086 065 372
 GetMvaValue     140 805 600
 
-using fma
+using fma 2c47fcbdc56296c03a86696a06e860031e96b611
 main          2 086 065 363
 GetMvaValue     140 805 600
 
-moving earlier to __m256
-main          2 078 331 442
-GetMvaValue     133 061 292
+moving earlier to __m256 912dd0cbc75e7a288598186db3bcbf67cafd63dd
+main          2 087 131 792
+GetMvaValue     141 861 642
