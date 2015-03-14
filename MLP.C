@@ -1099,6 +1099,11 @@ inline void ReadMLP::InitTransform_1()
        fscale[cls][ivar] = 2.f/(fMax_1[cls][ivar]-fMin_1[cls][ivar]);
      }
    }
+   for (int cls = 0 ; cls < 3 ; ++cls) {
+     for (int ivar = 0 ; ivar<24 ; ++ivar) {
+       fMin_1[cls][ivar] = fMin_1[cls][ivar]*fscale[cls][ivar] + 1.f;
+     }
+   }
 }
 
 //_______________________________________________________________________
@@ -1114,11 +1119,9 @@ inline void ReadMLP::Transform_1( std::vector<float>& iv, int cls) const
      __m128 vars = _mm_load_ps(&iv[ivar]);
      __m128 mins = _mm_load_ps(&fMin_1[cls][ivar]);
      __m128 scal = _mm_load_ps(&fscale[cls][ivar]);
-     __m128 one = _mm_set1_ps(1.f);
 
-     vars = _mm_sub_ps(vars,mins);
      vars = _mm_mul_ps(vars,scal);
-     vars = _mm_sub_ps(vars,one);
+     vars = _mm_sub_ps(vars,mins);
      
      _mm_store_ps(&iv[ivar],vars);
    }
