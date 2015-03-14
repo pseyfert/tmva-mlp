@@ -1078,6 +1078,11 @@ inline void ReadMLP::InitTransform_1()
        fscale[cls][ivar] = 2.f/(fMax_1[cls][ivar]-fMin_1[cls][ivar]);
      }
    }
+   for (int cls = 0 ; cls < 3 ; ++cls) {
+     for (int ivar = 0 ; ivar<24 ; ++ivar) {
+       fMin_1[cls][ivar] = fMin_1[cls][ivar]*fscale[cls][ivar] + 1.f;
+     }
+   }
 }
 
 //_______________________________________________________________________
@@ -1095,11 +1100,10 @@ inline void ReadMLP::Transform_1( std::vector<float>& iv, int cls)
      __m256 vars = _mm256_load_ps(&inputValues[ivar]);
      __m256 mins = _mm256_load_ps(&fMin_1[cls][ivar]);
      __m256 scal = _mm256_load_ps(&fscale[cls][ivar]);
-     __m256 one  = _mm256_set1_ps(1.f);
 
-     vars = _mm256_sub_ps(vars,mins);
      vars = _mm256_mul_ps(vars,scal);
-     invals[ivar/8] = _mm256_sub_ps(vars,one);
+     invals[ivar/8] = _mm256_sub_ps(vars,mins);
+     
    }
 //   for (;ivar<21;ivar++) { // catch the rest
 //      iv[ivar] = iv[ivar]-fMin_1[cls][ivar];
