@@ -130,3 +130,8 @@ GetMvaValue     142 213 656
 fma inspired initialisation 591eda06c10c572d9fa6805246b1e53d5d83d788
 main          2 086 065 372
 GetMvaValue     140 805 600
+
+using fma
+main          2 086 065 363
+GetMvaValue     140 805 600
+

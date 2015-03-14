@@ -1,4 +1,5 @@
 #include <mmintrin.h>
+#include <immintrin.h>
 #include <x86intrin.h>
 #include <limits>
 
@@ -1102,8 +1103,7 @@ inline void ReadMLP::Transform_1( std::vector<float>& iv, int cls)
      __m256 mins = _mm256_load_ps(&fMin_1[cls][ivar]);
      __m256 scal = _mm256_load_ps(&fscale[cls][ivar]);
 
-     vars = _mm256_mul_ps(vars,scal);
-     invals[ivar/8] = _mm256_sub_ps(vars,mins);
+     invals[ivar/8] = _mm256_fmsub_ps(vars,scal,mins);
      
    }
 //   for (;ivar<21;ivar++) { // catch the rest
