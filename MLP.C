@@ -1103,17 +1103,14 @@ inline void ReadMLP::Transform_1( std::vector<float>& iv, int cls)
    if (2 > 1 ) cls = 2;
       else cls = 2;
    }
-   int ivar=0;
    float inputValues[24] __attribute__ ((aligned (32)));
    __m256 vars[3];
    for (unsigned k = 0 ; k < 24 ; ++k) inputValues[k] = iv[k];
-   for (;ivar+7<24;ivar+=8) {
+   for (int ivar = 0;ivar+7<24;ivar+=8) {
      vars[ivar/8] = _mm256_load_ps(&inputValues[ivar]);
    }
-
-   for (;ivar+7<24;ivar+=8) {
+   for (int ivar = 0;ivar+7<24;ivar+=8) {
      invals[ivar/8] = _mm256_fmsub_ps(vars[ivar/8],fscale[cls][ivar/8],fMin_1[cls][ivar/8]);
-     
    }
 //   for (;ivar<21;ivar++) { // catch the rest
 //      iv[ivar] = iv[ivar]-fMin_1[cls][ivar];
