@@ -138,8 +138,8 @@ class ReadMLP : public IClassifierReader {
 
    // input variable transformation
 
-   float fMin_1[3][24] __attribute__ ((aligned (16)));
-   float fscale[3][24] __attribute__ ((aligned (16)));
+   float fMin_1[3][24] __attribute__ ((aligned (32)));
+   float fscale[3][24] __attribute__ ((aligned (32)));
    void InitTransform_1();
    void Transform_1( std::vector<float> & iv, int sigOrBgd ) const;
    void InitTransform();
@@ -154,15 +154,18 @@ class ReadMLP : public IClassifierReader {
 
    float ActivationFnc(float x) const;
    __m128 ActivationFnc(__m128 x) const;
+   __m256 ActivationFnc(__m256 x) const;
 
-   float fWeightMatrix0to1[26][24] __attribute__ ((aligned (16)));   // weight matrix from layer 0 to 1
-   __m128 matrix1to2[7];
+   float fWeightMatrix0to1[26][24] __attribute__ ((aligned (32)));   // weight matrix from layer 0 to 1
+   __m256 matrix1to2[4];
 
+  __m256 oneeten;
 };
 
 inline void ReadMLP::Initialize()
 {
   //Dummy();
+   oneeten = _mm256_set_ps(1e10f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f);
   //
    // weight matrix from layer 0 to 1
    fWeightMatrix0to1[0][0] = -1.29181860423292;
@@ -742,7 +745,7 @@ inline void ReadMLP::Initialize()
      fWeightMatrix0to1[o][23] = 0.f;
    }
    // weight matrix from layer 1 to 2
-   float fWeightMatrix1to2[28] __attribute__ ((aligned (16)));  // should be 27, but want to fill up to multiple of 4
+   float fWeightMatrix1to2[32] __attribute__ ((aligned (32)));  // should be 27, but want to fill up to multiple of 4
    fWeightMatrix1to2[0] = 0.350478674377896;
    fWeightMatrix1to2[1] = 0.639425978346642;
    fWeightMatrix1to2[2] = 1.79782734900409;
@@ -771,131 +774,107 @@ inline void ReadMLP::Initialize()
    fWeightMatrix1to2[25] = 1.76684009594162;
    fWeightMatrix1to2[26] = -2.58087367945991;
    fWeightMatrix1to2[27] = 0.f; /// fill up to multiple of four
-   for (int i = 0 ; i < 7 ; ++i) {
-     matrix1to2[i] = _mm_load_ps(&fWeightMatrix1to2[4*i]);
+
+   fWeightMatrix1to2[28] = 0.f; /// fill up to multiple of four
+   fWeightMatrix1to2[29] = 0.f; /// fill up to multiple of four
+   fWeightMatrix1to2[30] = 0.f; /// fill up to multiple of four
+   fWeightMatrix1to2[31] = 0.f; /// fill up to multiple of four
+   for (int i = 0 ; i < 4 ; ++i) {
+     matrix1to2[i] = _mm256_load_ps(&fWeightMatrix1to2[8*i]);
    }
 }
 
-inline float ReadMLP::GetMvaValue__( const std::vector<float>& inputValues )
+inline float ReadMLP::GetMvaValue__( const std::vector<float>& iV )
 {
 
+  float inputValues[24] __attribute__ ((aligned (32)));
+  for (unsigned k = 0 ; k < 24 ; ++k) inputValues[k] = iV[k];
   float retval;
-  __m128 oneeten = _mm_set_ss( 1e10f );
-
-  __m128 lWeights[7];
+  __m256 lWeights[4];
 
   // layer 0 to 1
   int o = 0;
-  for (; o<24; o+=4) {
-    __m128 sum[4];
-    for (int oo = 0 ; oo<4 ; oo++) {
-      __m128 simd_in = _mm_load_ps(&inputValues[0]);
-      __m128 matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][0]);
-      sum[oo] = _mm_mul_ps(simd_in,matrix);
-      simd_in = _mm_load_ps(&inputValues[4]);
-      matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][4]);
-      __m128 c =  _mm_mul_ps(simd_in,matrix);
-      sum[oo] = _mm_add_ps(c,sum[oo]);
-
-      simd_in = _mm_load_ps(&inputValues[8]);
-      matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][8]);
-      c =  _mm_mul_ps(simd_in,matrix);
-      sum[oo] = _mm_add_ps(c,sum[oo]);
+  for (; o<24; o+=8) {
+    __m256 sum[8];
+    for (int oo = 0 ; oo<8 ; oo++) {
+      __m256 simd_in = _mm256_load_ps(&inputValues[0]);
+      __m256 matrix = _mm256_load_ps(&fWeightMatrix0to1[o+oo][0]);
+      sum[oo] = _mm256_mul_ps(simd_in,matrix);
+      simd_in = _mm256_load_ps(&inputValues[8]);
+      matrix = _mm256_load_ps(&fWeightMatrix0to1[o+oo][8]);
+      __m256 c =  _mm256_mul_ps(simd_in,matrix);
+      sum[oo] = _mm256_add_ps(c,sum[oo]);
 
 
-      simd_in = _mm_load_ps(&inputValues[12]);
-      matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][12]);
-      c =  _mm_mul_ps(simd_in,matrix);
-      sum[oo] = _mm_add_ps(c,sum[oo]);
-
-
-      simd_in = _mm_load_ps(&inputValues[16]);
-      matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][16]);
-      c =  _mm_mul_ps(simd_in,matrix);
-      sum[oo] = _mm_add_ps(c,sum[oo]);
-
-      simd_in = _mm_load_ps(&inputValues[20]);
-      matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][20]);
-      c =  _mm_mul_ps(simd_in,matrix);
-      sum[oo] = _mm_add_ps(c,sum[oo]);
+      simd_in = _mm256_load_ps(&inputValues[16]);
+      matrix = _mm256_load_ps(&fWeightMatrix0to1[o+oo][16]);
+      c =  _mm256_mul_ps(simd_in,matrix);
+      sum[oo] = _mm256_add_ps(c,sum[oo]);
 
     }
-    sum[0] = _mm_hadd_ps(sum[0],sum[1]);
-    sum[2] = _mm_hadd_ps(sum[2],sum[3]); // superfluous in the last loop
-    //sum[0] = _mm_hadd_ps(sum[0],sum[2]);
-    lWeights[o/4] = _mm_hadd_ps(sum[0],sum[2]);
+
+    sum[0] = _mm256_hadd_ps(sum[0],sum[1]);
+    sum[2] = _mm256_hadd_ps(sum[2],sum[3]);
+    sum[4] = _mm256_hadd_ps(sum[4],sum[5]);
+    sum[6] = _mm256_hadd_ps(sum[6],sum[7]);
+
+    sum[0] = _mm256_hadd_ps(sum[0],sum[2]);
+    sum[4] = _mm256_hadd_ps(sum[4],sum[6]);
+    auto swap1 = _mm256_permute2f128_ps(sum[0],sum[4],0b00100000);
+    auto swap2 = _mm256_permute2f128_ps(sum[0],sum[4],0b00110001);
+
+    lWeights[o/8] = _mm256_add_ps(swap1,swap2);
   }
   o = 24; {
-    __m128 sum[2];
+    __m256 sum[2];
     for (int oo = 0 ; oo<2 ; oo++) {
-      __m128 simd_in = _mm_load_ps(&inputValues[0]);
-      __m128 matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][0]);
-      sum[oo] = _mm_mul_ps(simd_in,matrix);
-      simd_in = _mm_load_ps(&inputValues[4]);
-      matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][4]);
-      __m128 c =  _mm_mul_ps(simd_in,matrix);
-      sum[oo] = _mm_add_ps(c,sum[oo]);
-
-      simd_in = _mm_load_ps(&inputValues[8]);
-      matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][8]);
-      c =  _mm_mul_ps(simd_in,matrix);
-      sum[oo] = _mm_add_ps(c,sum[oo]);
+      __m256 simd_in = _mm256_load_ps(&inputValues[0]);
+      __m256 matrix = _mm256_load_ps(&fWeightMatrix0to1[o+oo][0]);
+      sum[oo] = _mm256_mul_ps(simd_in,matrix);
+      simd_in = _mm256_load_ps(&inputValues[8]);
+      matrix = _mm256_load_ps(&fWeightMatrix0to1[o+oo][8]);
+      __m256 c =  _mm256_mul_ps(simd_in,matrix);
+      sum[oo] = _mm256_add_ps(c,sum[oo]);
 
 
-      simd_in = _mm_load_ps(&inputValues[12]);
-      matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][12]);
-      c =  _mm_mul_ps(simd_in,matrix);
-      sum[oo] = _mm_add_ps(c,sum[oo]);
-
-
-      simd_in = _mm_load_ps(&inputValues[16]);
-      matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][16]);
-      c =  _mm_mul_ps(simd_in,matrix);
-      sum[oo] = _mm_add_ps(c,sum[oo]);
-
-      simd_in = _mm_load_ps(&inputValues[20]);
-      matrix = _mm_load_ps(&fWeightMatrix0to1[o+oo][20]);
-      c =  _mm_mul_ps(simd_in,matrix);
-      sum[oo] = _mm_add_ps(c,sum[oo]);
+      simd_in = _mm256_load_ps(&inputValues[16]);
+      matrix = _mm256_load_ps(&fWeightMatrix0to1[o+oo][16]);
+      c =  _mm256_mul_ps(simd_in,matrix);
+      sum[oo] = _mm256_add_ps(c,sum[oo]);
 
     }
-    sum[0] = _mm_hadd_ps(sum[0],sum[1]);
-    lWeights[o/4] = _mm_hadd_ps(sum[0],oneeten);
+    sum[0] = _mm256_hadd_ps(sum[0],sum[1]);
+    sum[0] = _mm256_hadd_ps(sum[0],oneeten);
+    auto swap = _mm256_permute2f128_ps(sum[0],sum[0],0b01000001);
+
+    lWeights[o/8] = _mm256_add_ps(sum[0],swap);
   }
   
   {
-    __m128 simd_in = ActivationFnc(lWeights[0]);
-    __m128 sum = _mm_mul_ps(simd_in,matrix1to2[0]);
+    __m256 simd_in = ActivationFnc(lWeights[0]);
+    __m256 sum = _mm256_mul_ps(simd_in,matrix1to2[0]);
 
     simd_in = ActivationFnc(lWeights[1]);
-    __m128 c = _mm_mul_ps(simd_in,matrix1to2[1]);
-    sum = _mm_add_ps(sum,c);
+    __m256 c = _mm256_mul_ps(simd_in,matrix1to2[1]);
+    sum = _mm256_add_ps(sum,c);
 
     simd_in = ActivationFnc(lWeights[2]);
-    c = _mm_mul_ps(simd_in,matrix1to2[2]);
-    sum = _mm_add_ps(sum,c);
+    c = _mm256_mul_ps(simd_in,matrix1to2[2]);
+    sum = _mm256_add_ps(sum,c);
 
     simd_in = ActivationFnc(lWeights[3]);
-    c = _mm_mul_ps(simd_in,matrix1to2[3]);
-    sum = _mm_add_ps(sum,c);
+    c = _mm256_mul_ps(simd_in,matrix1to2[3]);
+    sum = _mm256_add_ps(sum,c);
 
-    simd_in = ActivationFnc(lWeights[4]);
-    c = _mm_mul_ps(simd_in,matrix1to2[4]);
-    sum = _mm_add_ps(sum,c);
 
-    simd_in = ActivationFnc(lWeights[5]);
-    c = _mm_mul_ps(simd_in,matrix1to2[5]);
-    sum = _mm_add_ps(sum,c);
-
-    simd_in = ActivationFnc(lWeights[6]);
-    c = _mm_mul_ps(simd_in,matrix1to2[6]);
-    sum = _mm_add_ps(c,sum);
-
-    sum = _mm_hadd_ps(sum,sum);
-    sum = _mm_hadd_ps(sum,sum);
+    sum = _mm256_hadd_ps(sum,sum);
+    sum = _mm256_hadd_ps(sum,sum);
+    auto theswap = _mm256_permute2f128_ps(sum,sum,1);
+    sum = _mm256_add_ps(sum,theswap);
 
     sum = ActivationFnc(sum);
-    _mm_store_ss(&retval, sum);
+    auto buffer = _mm256_castps256_ps128(sum);
+    _mm_store_ss(&retval, buffer);
   }
 
 
@@ -923,6 +902,13 @@ inline void ReadMLP::Dummy() {
   for (unsigned int i = 0 ; i < 4 ; ++i) std::cout << output[i] << "\t";
   std::cout << std::endl;
 }
+inline __m256 ReadMLP::ActivationFnc(__m256 x) const {
+   auto buffer = _mm256_mul_ps(x,x);
+   auto one = _mm256_set1_ps(1.f);
+   buffer = _mm256_add_ps(one,buffer);
+   buffer = _mm256_rsqrt_ps(buffer);
+   return _mm256_mul_ps(x,buffer);
+}
 inline __m128 ReadMLP::ActivationFnc(__m128 x) const {
    __m128 buffer = _mm_mul_ps(x,x);
    __m128 one = _mm_set1_ps(1.f);
@@ -949,7 +935,7 @@ inline float ReadMLP::GetMvaValue( std::vector<float>& inputValues )
 inline void ReadMLP::InitTransform_1()
 {
    // Normalization transformation, initialisation
-   float fMax_1[3][24] __attribute__ ((aligned (16)));
+   float fMax_1[3][24] __attribute__ ((aligned (32)));
    fMin_1[0][0] = 6;
    fMax_1[0][0] = 34;
    fMin_1[1][0] = 6;
