@@ -122,3 +122,11 @@ GetMvaValue     210 504 372
 
 +PGO
 main          2 214 554 987
+
+avx
+main          2 087 473 287
+GetMvaValue     142 213 656
+
+fma inspired initialisation 591eda06c10c572d9fa6805246b1e53d5d83d788
+main          2 086 065 372
+GetMvaValue     140 805 600
