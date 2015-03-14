@@ -135,3 +135,6 @@ using fma
 main          2 086 065 363
 GetMvaValue     140 805 600
 
+moving earlier to __m256
+main          2 078 331 442
+GetMvaValue     133 061 292
