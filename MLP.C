@@ -160,6 +160,7 @@ class ReadMLP : public IClassifierReader {
    __m256 invals[3];
    __m256 fMin_1[3];
    __m256 fscale[3];
+   __m256 one256;
 
   __m256 oneeten;
 };
@@ -169,6 +170,7 @@ inline void ReadMLP::Initialize()
   //Dummy();
    //oneeten = _mm256_set_ps(0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 1e10f);
    oneeten = _mm256_set1_ps(1e10f); /// same result but less headache
+   one256= _mm256_set1_ps(1.f);
   //
    // weight matrix from layer 0 to 1
    fWeightMatrix0to1[0][0] = -1.29181860423292;
@@ -898,9 +900,7 @@ inline void ReadMLP::Dummy() {
   std::cout << std::endl;
 }
 inline __m256 ReadMLP::ActivationFnc(__m256 x) const {
-   auto buffer = _mm256_mul_ps(x,x);
-   auto one = _mm256_set1_ps(1.f);
-   buffer = _mm256_add_ps(one,buffer);
+   auto buffer = _mm256_fmsub_ps(x,x,one256);
    buffer = _mm256_rsqrt_ps(buffer);
    return _mm256_mul_ps(x,buffer);
 }
